@@ -129,6 +129,45 @@ main{display:flex;gap:22px;align-items:flex-start;padding:18px;flex-wrap:wrap}
 #soln th{background:#f0f0f0;text-transform:uppercase;letter-spacing:.08em;font-size:10px}
 #soln td.miss{color:#bbb}
 .hint{font-size:11px;line-height:1.5;opacity:.7;padding:0 18px 22px}
+
+/* bulk name editor */
+.modal{
+  position:fixed;inset:0;z-index:50;background:rgba(0,0,0,.55);
+  display:flex;align-items:flex-start;justify-content:center;overflow:auto;
+  padding:calc(20px + env(safe-area-inset-top)) 12px calc(20px + env(safe-area-inset-bottom));
+}
+.modal[hidden]{display:none}
+.sheet{background:var(--paper);border:3px solid var(--ink);width:100%;max-width:900px;margin:auto}
+.sheet h2{
+  margin:0;padding:7px 10px;font-size:12px;letter-spacing:.16em;text-transform:uppercase;
+  background:var(--ink);color:var(--paper);display:flex;justify-content:space-between;align-items:center;
+}
+.sheet h2 button{padding:2px 7px;font-size:10px;border-width:1px;border-color:var(--paper);background:transparent;color:var(--paper)}
+.sheet h2 button:hover{background:var(--paper);color:var(--ink)}
+.sheet .note{margin:0;padding:9px 10px 0;font-size:11px;line-height:1.5;opacity:.7}
+.sheet .foot{display:flex;gap:8px;padding:2px 10px 12px}
+#namesCols{display:grid;grid-template-columns:repeat(auto-fit,minmax(170px,1fr));gap:10px;padding:10px}
+#namesCols .nc{display:flex;flex-direction:column;gap:6px;min-width:0}
+#namesCols input,#namesCols textarea{
+  font:inherit;font-size:13px;width:100%;border:2px solid var(--ink);border-radius:0;
+  background:var(--paper);color:var(--ink);padding:5px 6px;
+}
+#namesCols input{font-size:12px;font-weight:800;letter-spacing:.08em;text-transform:uppercase}
+#namesCols textarea{min-height:140px;resize:vertical;line-height:1.55}
+
+/* update toast */
+.toast{
+  position:fixed;z-index:60;left:50%;transform:translateX(-50%);
+  bottom:calc(16px + env(safe-area-inset-bottom));
+  display:flex;align-items:center;gap:10px;max-width:calc(100vw - 24px);
+  background:var(--ink);color:var(--paper);border:3px solid var(--ink);
+  padding:9px 10px;box-shadow:0 6px 18px rgba(0,0,0,.35);
+}
+.toast[hidden]{display:none}
+.toast .msg{font-size:12px;font-weight:700;letter-spacing:.08em;text-transform:uppercase}
+.toast button{border-color:var(--paper);padding:4px 9px;font-size:11px}
+.toast button.ghost{background:transparent;color:var(--paper)}
+.toast button.ghost:hover{background:var(--paper);color:var(--ink)}
 #status{font-size:11px;font-weight:700;letter-spacing:.08em;text-transform:uppercase}
 #status.bad{color:var(--accent)}
 #status.good{color:#0a7d34}
@@ -179,6 +218,8 @@ main{display:flex;gap:22px;align-items:flex-start;padding:18px;flex-wrap:wrap}
   <button id="btnZoomOut" title="Smaller cells">−</button>
   <button id="btnZoomIn" title="Bigger cells">+</button>
   <span class="sep"></span>
+  <button id="btnNames" title="Edit all category and item names at once">Names</button>
+  <span class="sep"></span>
   <button id="btnClear">Clear Marks</button>
   <button id="btnReset">Reset All</button>
   <span class="sep"></span>
@@ -203,9 +244,31 @@ main{display:flex;gap:22px;align-items:flex-start;padding:18px;flex-wrap:wrap}
   </div>
 </main>
 
+<div id="toast" class="toast noprint" hidden>
+  <span class="msg" id="toastMsg"></span>
+  <button id="toastAct"></button>
+  <button id="toastDismiss" class="ghost" title="Dismiss">✕</button>
+</div>
+
+<div id="namesModal" class="modal noprint" hidden>
+  <div class="sheet" role="dialog" aria-modal="true" aria-label="Edit names">
+    <h2>Edit Names <button id="btnNamesClose" title="Close">✕</button></h2>
+    <p class="note">
+      Top box = category name. Below it, one item per line (paste a whole list straight in).
+      Blank lines are ignored; the item count follows the longest list, clamped to 3–6.
+    </p>
+    <div id="namesCols"></div>
+    <div class="foot">
+      <button id="btnNamesApply">Apply</button>
+      <button id="btnNamesCancel">Cancel</button>
+    </div>
+  </div>
+</div>
+
 <p class="hint">
   Click a cell: blank → <b>✗</b> → <b>✓</b> → blank. Right-click (or long-press on touch) cycles backwards.
-  Click any category or item name to rename it. Everything autosaves in this browser.
+  Click any category or item name to rename it, or hit <b>Names</b> to paste a whole puzzle's
+  categories and items in one go. Everything autosaves in this browser.
 </p>
 
 <script>
@@ -528,6 +591,70 @@ function renderClues(){
   });
 }
 
+/* ---------- bulk name editor ---------- */
+
+var namesModal = document.getElementById("namesModal");
+
+function openNames(){
+  var wrap = document.getElementById("namesCols");
+  wrap.innerHTML = "";
+  for(var c=0;c<state.n;c++){
+    var d = el("div","nc");
+    var nm = document.createElement("input");
+    nm.type = "text";
+    nm.value = state.cats[c].name;
+    nm.setAttribute("aria-label","Category " + (c+1) + " name");
+    var ta = document.createElement("textarea");
+    ta.value = state.cats[c].items.slice(0, state.m).join("\n");
+    ta.rows = state.m + 1;
+    ta.spellcheck = false;
+    ta.setAttribute("aria-label","Items for category " + (c+1));
+    d.appendChild(nm); d.appendChild(ta);
+    wrap.appendChild(d);
+  }
+  namesModal.hidden = false;
+  var first = wrap.querySelector("input");
+  if(first){ first.focus(); first.select(); }
+}
+
+function closeNames(){ namesModal.hidden = true; }
+
+function tidy(s){ return s.replace(/\s+/g," ").trim(); }
+
+function applyNames(){
+  var wrap = document.getElementById("namesCols");
+  var names = [].map.call(wrap.querySelectorAll("input"), function(inp){ return tidy(inp.value); });
+  var lists = [].map.call(wrap.querySelectorAll("textarea"), function(ta){
+    return ta.value.split("\n").map(tidy).filter(function(s){ return s.length; });
+  });
+
+  var maxItems = 0;
+  lists.forEach(function(l){ if(l.length > maxItems) maxItems = l.length; });
+  var m = Math.max(3, Math.min(6, maxItems || state.m));
+
+  if(m !== state.m){
+    resize(state.n, m);                     // drops out-of-range marks, rebuilds cats
+    fillSelect("nItems", 3, 6, m);
+  }
+
+  for(var c=0;c<state.n;c++){
+    if(names[c]) state.cats[c].name = names[c];
+    for(var i=0;i<m;i++){
+      state.cats[c].items[i] = lists[c][i] || state.cats[c].items[i] || ("Item " + (i+1));
+    }
+    state.cats[c].items.length = m;
+  }
+
+  closeNames();
+  render(); save();
+}
+
+document.getElementById("btnNames").addEventListener("click", openNames);
+document.getElementById("btnNamesApply").addEventListener("click", applyNames);
+document.getElementById("btnNamesCancel").addEventListener("click", closeNames);
+document.getElementById("btnNamesClose").addEventListener("click", closeNames);
+namesModal.addEventListener("click", function(ev){ if(ev.target === namesModal) closeNames(); });
+
 /* ---------- controls ---------- */
 
 function fillSelect(id, from, to, val){
@@ -629,18 +756,70 @@ document.getElementById("fileIn").addEventListener("change", function(){
 document.getElementById("btnPrint").addEventListener("click", function(){ window.print(); });
 
 document.addEventListener("keydown", function(ev){
-  if(ev.target.isContentEditable) return;
+  if(ev.key === "Escape" && !namesModal.hidden){ ev.preventDefault(); closeNames(); return; }
+  var tag = ev.target.tagName;
+  if(ev.target.isContentEditable || tag === "INPUT" || tag === "TEXTAREA") return;
   var mod = ev.metaKey || ev.ctrlKey;
   if(mod && ev.key.toLowerCase() === "z"){ ev.preventDefault(); ev.shiftKey ? redo() : undo(); }
   if(mod && ev.key.toLowerCase() === "y"){ ev.preventDefault(); redo(); }
 });
 
+/* ---------- toast ---------- */
+
+var toastEl = document.getElementById("toast");
+
+function showToast(msg, actionLabel, onAction){
+  document.getElementById("toastMsg").textContent = msg;
+  var act = document.getElementById("toastAct");
+  var fresh = act.cloneNode(false);            // drop any previous handler
+  fresh.textContent = actionLabel;
+  fresh.addEventListener("click", onAction);
+  act.parentNode.replaceChild(fresh, act);
+  toastEl.hidden = false;
+}
+function hideToast(){ toastEl.hidden = true; }
+document.getElementById("toastDismiss").addEventListener("click", hideToast);
+
 /* ---------- boot ---------- */
 
-/* Offline support for the home-screen app. No-ops when opened from file://. */
+/* Offline support + update prompt. No-ops when opened from file://. */
 if("serviceWorker" in navigator && location.protocol.indexOf("http") === 0){
   window.addEventListener("load", function(){
-    navigator.serviceWorker.register("sw.js").catch(function(){});
+    navigator.serviceWorker.register("sw.js").then(function(reg){
+
+      function offerUpdate(){
+        if(!reg.waiting) return;
+        showToast("New version available", "Update", function(){
+          updating = true;
+          hideToast();
+          reg.waiting.postMessage({type:"SKIP_WAITING"});
+        });
+      }
+
+      if(reg.waiting && navigator.serviceWorker.controller) offerUpdate();
+
+      reg.addEventListener("updatefound", function(){
+        var sw = reg.installing;
+        if(!sw) return;
+        sw.addEventListener("statechange", function(){
+          // "installed" + an existing controller == a newer build is waiting
+          if(sw.state === "installed" && navigator.serviceWorker.controller) offerUpdate();
+        });
+      });
+
+      function poll(){ reg.update().catch(function(){}); }
+      document.addEventListener("visibilitychange", function(){ if(!document.hidden) poll(); });
+      setInterval(poll, 30 * 60 * 1000);
+      poll();
+
+    }).catch(function(){});
+  });
+
+  var updating = false;
+  navigator.serviceWorker.addEventListener("controllerchange", function(){
+    if(!updating) return;                      // ignore the very first install
+    updating = false;
+    location.reload();
   });
 }
 
