@@ -2,7 +2,7 @@
    Shell is cached so the home-screen app works offline. A new build installs into a
    fresh cache and then *waits* — the page shows an "Update" toast and posts
    SKIP_WAITING when the user taps it. */
-var CACHE = "murdle-chart-v3";
+var CACHE = "murdle-chart-v4";
 var ASSETS = ["./", "./index.html", "./icon-512.png"];
 
 self.addEventListener("install", function(e){

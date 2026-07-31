@@ -12,7 +12,9 @@ Single-file HTML5 logic-grid (Murdle-style) deduction chart. Offline, no build s
 - N categories (default 3: Suspects / Weapons / Locations), each with M items (default 4).
 - Grid = staircase of pairwise blocks: for categories `c0..c(N-1)`, block `(i,j)` exists for `i<j`, laid out Murdle-style (row-cats = c1..c(N-1) reversed, col-cats = c0..c(N-2)).
 - Cell state cycles on click: `empty → ✗ → ✓ → ? → empty`. Right-click / long-press = reverse cycle.
-  `?` is a pencil mark: ignored by "solved", counted as unknown by deduction.
+  `?` is a pencil mark: ignored by "solved", counted as unknown by deduction, and — unlike a
+  player ✓/✗ — it does not block a derived mark, since it asserts nothing. It stays in
+  `state.marks`, so it reappears if the deduction that covered it goes away.
 - Cell = `{catA, itemA, catB, itemB}` keyed pair; state stored in a Map, symmetric.
 - **Two mark layers.** `state.marks` holds only what the player entered and is the only thing
   persisted/undone. `view` = `state.marks` + everything `deduce()` derives, rebuilt from scratch

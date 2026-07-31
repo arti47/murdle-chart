@@ -455,9 +455,9 @@ function setUserMark(cA,iA,cB,iB,v){
   var k = mkKey(cA,iA,cB,iB);
   if(v) state.marks[k] = v; else delete state.marks[k];
 }
-function setMark(cA,iA,cB,iB,v){          // derived write: never overrides the player
+function setMark(cA,iA,cB,iB,v){          // derived write: never overrides a player ✓/✗
   var k = mkKey(cA,iA,cB,iB);
-  if(state.marks[k]) return;
+  if(state.marks[k] && state.marks[k] !== MARK_Q) return;   // a ? asserts nothing, so it can't block
   if(v) view[k] = v; else delete view[k];
 }
 function recompute(){
@@ -763,7 +763,7 @@ function refresh(){
     c = cellEls[key];
     v = view[key] || 0;
     c.textContent = v ? GLYPH[v] : "";
-    c.className = "cell" + (MCLS[v] || "") + (v && !state.marks[key] ? " auto" : "") +
+    c.className = "cell" + (MCLS[v] || "") + (v && state.marks[key] !== v ? " auto" : "") +
                   (errs[key] ? " err" : "") + edgeCls(c);
   }
   applyHl(hl);
