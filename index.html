@@ -1,0 +1,656 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<title>Murdle Chart</title>
+
+<!-- iOS / PWA: Add to Home Screen -->
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="apple-mobile-web-app-title" content="Murdle">
+<meta name="theme-color" content="#111111">
+<link rel="apple-touch-icon" href="data:image/png;base64,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">
+<link rel="icon" type="image/png" href="data:image/png;base64,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">
+<link rel="manifest" href='data:application/manifest+json,{"name":"Murdle Chart","short_name":"Murdle","start_url":".","scope":".","display":"standalone","orientation":"any","background_color":"%23f4f1ea","theme_color":"%23111111","icons":[{"src":"icon-512.png","sizes":"512x512","type":"image/png","purpose":"any"}]}'>
+<style>
+:root{
+  --cs:34px;
+  --lab:130px;
+  --ink:#111;
+  --line:#c9c9c9;
+  --bg:#f4f1ea;
+  --paper:#fff;
+  --accent:#b8121b;
+}
+*{box-sizing:border-box}
+html,body{margin:0;padding:0}
+body{
+  background:var(--bg);
+  color:var(--ink);
+  font-family:"Helvetica Neue",Helvetica,Arial,sans-serif;
+  -webkit-text-size-adjust:100%;
+  overscroll-behavior:none;
+  padding:env(safe-area-inset-top) env(safe-area-inset-right) env(safe-area-inset-bottom) env(safe-area-inset-left);
+}
+header{
+  display:flex;align-items:baseline;gap:14px;flex-wrap:wrap;
+  padding:14px 18px 10px;border-bottom:3px solid var(--ink);
+}
+h1{
+  margin:0;font-size:26px;letter-spacing:.14em;text-transform:uppercase;
+  font-weight:800;
+}
+h1 span{color:var(--accent)}
+.tag{font-size:11px;letter-spacing:.18em;text-transform:uppercase;opacity:.6}
+
+#controls{
+  display:flex;gap:10px;flex-wrap:wrap;align-items:center;
+  padding:10px 18px;border-bottom:2px solid var(--ink);background:#efeadf;
+}
+#controls label{font-size:11px;letter-spacing:.1em;text-transform:uppercase;font-weight:700}
+select,button{
+  font:inherit;font-size:12px;font-weight:700;letter-spacing:.06em;text-transform:uppercase;
+  background:var(--paper);color:var(--ink);border:2px solid var(--ink);
+  padding:5px 9px;cursor:pointer;border-radius:0;
+  touch-action:manipulation;-webkit-tap-highlight-color:transparent;
+}
+button:hover{background:var(--ink);color:var(--paper)}
+button:disabled{opacity:.35;cursor:default}
+button:disabled:hover{background:var(--paper);color:var(--ink)}
+button.on{background:var(--ink);color:var(--paper)}
+.sep{width:1px;height:22px;background:#bbb}
+
+main{display:flex;gap:22px;align-items:flex-start;padding:18px;flex-wrap:wrap}
+#gridWrap{
+  overflow:auto;max-width:100%;padding-bottom:6px;
+  -webkit-overflow-scrolling:touch;overscroll-behavior-x:contain;
+}
+
+#grid{display:grid;gap:0;background:transparent}
+.cell{
+  background:var(--paper);border:1px solid var(--line);
+  display:flex;align-items:center;justify-content:center;
+  font-size:19px;font-weight:800;line-height:1;cursor:pointer;
+  user-select:none;-webkit-user-select:none;-webkit-tap-highlight-color:transparent;
+  -webkit-touch-callout:none;touch-action:manipulation;
+  padding:0;
+}
+.cell:hover{background:#fffbe6}
+.cell.x{color:#6a6a6a}
+.cell.v{color:#0a7d34}
+.cell.err{background:#ffe0e0}
+.cell.err:hover{background:#ffd0d0}
+.bt{border-top:3px solid var(--ink)}
+.bb{border-bottom:3px solid var(--ink)}
+.bl{border-left:3px solid var(--ink)}
+.br{border-right:3px solid var(--ink)}
+
+.catlab{
+  display:flex;align-items:center;justify-content:center;text-align:center;
+  font-size:11px;font-weight:800;letter-spacing:.14em;text-transform:uppercase;
+  background:var(--ink);color:var(--paper);border:1px solid var(--ink);
+  overflow:hidden;padding:2px;
+}
+.catlab.vert{writing-mode:vertical-rl;transform:rotate(180deg)}
+.itemlab{
+  font-size:12px;font-weight:700;display:flex;align-items:center;
+  border:1px solid var(--line);background:var(--paper);padding:0 6px;
+  overflow:hidden;white-space:nowrap;
+}
+.itemlab.row{justify-content:flex-end;text-align:right}
+.itemlab.col{
+  writing-mode:vertical-rl;transform:rotate(180deg);
+  justify-content:flex-end;padding:6px 0;
+}
+[contenteditable]{outline:none}
+[contenteditable]:focus{background:#fff6b8;color:var(--ink)}
+.corner{background:transparent;border:none}
+
+#side{flex:1 1 280px;min-width:260px;max-width:420px}
+.panel{background:var(--paper);border:3px solid var(--ink);margin-bottom:16px}
+.panel h2{
+  margin:0;padding:7px 10px;font-size:12px;letter-spacing:.16em;text-transform:uppercase;
+  background:var(--ink);color:var(--paper);display:flex;justify-content:space-between;align-items:center;
+}
+.panel h2 button{padding:2px 7px;font-size:10px;border-width:1px;border-color:var(--paper);background:transparent;color:var(--paper)}
+.panel h2 button:hover{background:var(--paper);color:var(--ink)}
+.panel .body{padding:8px 10px}
+#clues{list-style:none;margin:0;padding:0}
+#clues li{display:flex;gap:7px;align-items:flex-start;padding:6px 10px;border-bottom:1px solid #e4e4e4;font-size:13px;line-height:1.4}
+#clues li:last-child{border-bottom:none}
+#clues .txt{flex:1;min-width:0;word-wrap:break-word}
+#clues li.done .txt{text-decoration:line-through;opacity:.45}
+#clues .mini{border:1px solid #bbb;background:#fff;font-size:11px;padding:1px 6px;line-height:1.4;flex:0 0 auto}
+#clues .empty{opacity:.5;font-style:italic}
+#soln{width:100%;border-collapse:collapse;font-size:12px}
+#soln th,#soln td{border:1px solid var(--line);padding:4px 6px;text-align:left}
+#soln th{background:#f0f0f0;text-transform:uppercase;letter-spacing:.08em;font-size:10px}
+#soln td.miss{color:#bbb}
+.hint{font-size:11px;line-height:1.5;opacity:.7;padding:0 18px 22px}
+#status{font-size:11px;font-weight:700;letter-spacing:.08em;text-transform:uppercase}
+#status.bad{color:var(--accent)}
+#status.good{color:#0a7d34}
+
+@media (max-width:760px){
+  header{padding:10px 12px 8px}
+  h1{font-size:20px}
+  #controls{padding:8px 12px;gap:7px}
+  select,button{padding:7px 9px}          /* bigger touch targets */
+  main{padding:12px;gap:14px}
+  .hint{padding:0 12px 24px}
+  #side{max-width:none;flex-basis:100%}
+  .itemlab{font-size:11px}
+}
+/* standalone (home-screen) mode: pad under the iOS status bar */
+@media all and (display-mode:standalone){
+  header{padding-top:calc(14px + env(safe-area-inset-top))}
+}
+@supports (-webkit-touch-callout:none){
+  header{padding-top:calc(14px + env(safe-area-inset-top))}
+}
+@media print{
+  #controls,#side .noprint,.hint,header .tag{display:none!important}
+  body{background:#fff}
+  main{padding:0}
+  .cell:hover{background:#fff}
+}
+</style>
+</head>
+<body>
+
+<header>
+  <h1>Murdle<span>·</span>Chart</h1>
+  <span class="tag">Deduction Grid</span>
+  <span id="status"></span>
+</header>
+
+<div id="controls">
+  <label for="nCats">Cats</label>
+  <select id="nCats"></select>
+  <label for="nItems">Items</label>
+  <select id="nItems"></select>
+  <span class="sep"></span>
+  <button id="btnAuto" title="Auto-fill ✗ across the row and column of a ✓">Auto ✗</button>
+  <button id="btnUndo">Undo</button>
+  <button id="btnRedo">Redo</button>
+  <span class="sep"></span>
+  <button id="btnZoomOut" title="Smaller cells">−</button>
+  <button id="btnZoomIn" title="Bigger cells">+</button>
+  <span class="sep"></span>
+  <button id="btnClear">Clear Marks</button>
+  <button id="btnReset">Reset All</button>
+  <span class="sep"></span>
+  <button id="btnExport">Export</button>
+  <button id="btnImport">Import</button>
+  <button id="btnPrint">Print</button>
+  <input type="file" id="fileIn" accept="application/json,.json" hidden>
+</div>
+
+<main>
+  <div id="gridWrap"><div id="grid"></div></div>
+
+  <div id="side">
+    <div class="panel">
+      <h2>Clues <button id="btnAddClue" class="noprint">+ Add</button></h2>
+      <ul id="clues"></ul>
+    </div>
+    <div class="panel">
+      <h2>Solution</h2>
+      <div class="body"><table id="soln"></table></div>
+    </div>
+  </div>
+</main>
+
+<p class="hint">
+  Click a cell: blank → <b>✗</b> → <b>✓</b> → blank. Right-click (or long-press on touch) cycles backwards.
+  Click any category or item name to rename it. Everything autosaves in this browser.
+</p>
+
+<script>
+(function(){
+"use strict";
+
+var KEY = "murdle-chart-v1";
+var MARK_X = 1, MARK_V = 2;
+
+var DEFAULTS = [
+  {name:"Suspects",  items:["Miss Saffron","Mx. Tangerine","Chef Aubergine","Dr. Crimson","Sgt. Cobalt","Lady Violet"]},
+  {name:"Weapons",   items:["Candlestick","Poison","Wrench","Dagger","Rope","Revolver"]},
+  {name:"Locations", items:["Library","Garden","Kitchen","Cellar","Balcony","Study"]},
+  {name:"Motives",   items:["Greed","Revenge","Jealousy","Fear","Secrecy","Spite"]},
+  {name:"Time",      items:["Morning","Noon","Dusk","Midnight","Dawn","Twilight"]}
+];
+
+var state = null;
+var undoStack = [], redoStack = [];
+
+/* ---------- model ---------- */
+
+function makeCats(n, m, old){
+  var cats = [];
+  for(var c=0;c<n;c++){
+    var src = (old && old[c]) ? old[c] : null;
+    var name = src ? src.name : DEFAULTS[c].name;
+    var items = [];
+    for(var i=0;i<m;i++){
+      if(src && src.items[i] != null) items.push(src.items[i]);
+      else if(DEFAULTS[c].items[i] != null) items.push(DEFAULTS[c].items[i]);
+      else items.push("Item " + (i+1));
+    }
+    cats.push({name:name, items:items});
+  }
+  return cats;
+}
+
+function defaultCellSize(){
+  return window.innerWidth < 760 ? 28 : 34;
+}
+function freshState(n, m){
+  return {n:n, m:m, cats:makeCats(n, m, null), marks:{}, clues:[], auto:true, cs:defaultCellSize()};
+}
+
+function mkKey(cA,iA,cB,iB){
+  if(cA > cB){ var t=cA;cA=cB;cB=t; t=iA;iA=iB;iB=t; }
+  return cA+"."+iA+"-"+cB+"."+iB;
+}
+function getMark(cA,iA,cB,iB){ return state.marks[mkKey(cA,iA,cB,iB)] || 0; }
+function setMark(cA,iA,cB,iB,v){
+  var k = mkKey(cA,iA,cB,iB);
+  if(v) state.marks[k] = v; else delete state.marks[k];
+}
+
+/* Category index for each on-screen block row / block column.
+   Columns (left→right): c1, c2, ... c(n-1)
+   Rows    (top→bottom): c0, c(n-1), c(n-2), ... c2
+   Block (r,k) exists iff k < n-1-r  */
+function colCat(k){ return k + 1; }
+function rowCat(r){ return r === 0 ? 0 : state.n - r; }
+function blockExists(r,k){ return k < state.n - 1 - r; }
+
+/* ---------- persistence ---------- */
+
+function save(){
+  try{ localStorage.setItem(KEY, JSON.stringify(state)); }catch(e){}
+}
+function load(){
+  try{
+    var raw = localStorage.getItem(KEY);
+    if(!raw) return null;
+    var s = JSON.parse(raw);
+    if(!s || !s.cats || !s.cats.length) return null;
+    s.marks = s.marks || {};
+    s.clues = s.clues || [];
+    s.n = s.cats.length;
+    s.m = s.cats[0].items.length;
+    if(typeof s.auto !== "boolean") s.auto = true;
+    if(typeof s.cs !== "number") s.cs = defaultCellSize();
+    return s;
+  }catch(e){ return null; }
+}
+
+/* ---------- undo ---------- */
+
+function snapshot(){
+  undoStack.push(JSON.stringify(state.marks));
+  if(undoStack.length > 200) undoStack.shift();
+  redoStack.length = 0;
+}
+function undo(){
+  if(!undoStack.length) return;
+  redoStack.push(JSON.stringify(state.marks));
+  state.marks = JSON.parse(undoStack.pop());
+  render(); save();
+}
+function redo(){
+  if(!redoStack.length) return;
+  undoStack.push(JSON.stringify(state.marks));
+  state.marks = JSON.parse(redoStack.pop());
+  render(); save();
+}
+
+/* ---------- marking ---------- */
+
+function cycle(cA,iA,cB,iB,back){
+  var cur = getMark(cA,iA,cB,iB);
+  var next = back ? (cur + 2) % 3 : (cur + 1) % 3;
+  snapshot();
+  setMark(cA,iA,cB,iB,next);
+  if(next === MARK_V && state.auto) autoFill(cA,iA,cB,iB);
+  render(); save();
+}
+
+function autoFill(cA,iA,cB,iB){
+  var m = state.m, i;
+  for(i=0;i<m;i++) if(i !== iA && getMark(cA,i,cB,iB) !== MARK_V) setMark(cA,i,cB,iB,MARK_X);
+  for(i=0;i<m;i++) if(i !== iB && getMark(cA,iA,cB,i) !== MARK_V) setMark(cA,iA,cB,i,MARK_X);
+}
+
+/* ---------- validation ---------- */
+/* Returns a set of keys involved in a contradiction. */
+function findErrors(){
+  var bad = {}, n = state.n, m = state.m;
+  for(var a=0;a<n;a++) for(var b=a+1;b<n;b++){
+    var i,j,ticks,crosses,line;
+    for(i=0;i<m;i++){                       // row of block: item i of cat a
+      ticks=[]; crosses=0; line=[];
+      for(j=0;j<m;j++){
+        var v = getMark(a,i,b,j); line.push(mkKey(a,i,b,j));
+        if(v===MARK_V) ticks.push(mkKey(a,i,b,j)); else if(v===MARK_X) crosses++;
+      }
+      if(ticks.length>1) ticks.forEach(function(k){bad[k]=1;});
+      if(crosses===m) line.forEach(function(k){bad[k]=1;});
+    }
+    for(j=0;j<m;j++){                       // column of block: item j of cat b
+      ticks=[]; crosses=0; line=[];
+      for(i=0;i<m;i++){
+        var v2 = getMark(a,i,b,j); line.push(mkKey(a,i,b,j));
+        if(v2===MARK_V) ticks.push(mkKey(a,i,b,j)); else if(v2===MARK_X) crosses++;
+      }
+      if(ticks.length>1) ticks.forEach(function(k){bad[k]=1;});
+      if(crosses===m) line.forEach(function(k){bad[k]=1;});
+    }
+  }
+  return bad;
+}
+
+/* ---------- render ---------- */
+
+var gridEl = document.getElementById("grid");
+
+function el(tag, cls, txt){
+  var e = document.createElement(tag);
+  if(cls) e.className = cls;
+  if(txt != null) e.textContent = txt;
+  return e;
+}
+function place(e, r, c, rs, cs){
+  e.style.gridRow = r + (rs ? " / span " + rs : "");
+  e.style.gridColumn = c + (cs ? " / span " + cs : "");
+}
+function editable(e, onCommit){
+  e.contentEditable = "true";
+  e.spellcheck = false;
+  e.addEventListener("keydown", function(ev){
+    if(ev.key === "Enter"){ ev.preventDefault(); e.blur(); }
+    ev.stopPropagation();
+  });
+  e.addEventListener("blur", function(){
+    var v = e.textContent.replace(/\s+/g," ").trim();
+    if(!v){ v = "?"; e.textContent = v; }
+    onCommit(v);
+  });
+}
+
+function render(){
+  var n = state.n, m = state.m, blocks = n - 1, cells = blocks * m;
+  var errs = findErrors();
+
+  gridEl.innerHTML = "";
+  gridEl.style.gridTemplateColumns = "26px var(--lab) repeat(" + cells + ", var(--cs))";
+  gridEl.style.gridTemplateRows    = "26px var(--lab) repeat(" + cells + ", var(--cs))";
+
+  var corner = el("div","corner"); place(corner,1,1,2,2); gridEl.appendChild(corner);
+
+  var k, r, i, j;
+
+  // column headers
+  for(k=0;k<blocks;k++){
+    var cc = colCat(k);
+    var ch = el("div","catlab", state.cats[cc].name.toUpperCase());
+    place(ch, 1, 3 + k*m, 1, m);
+    editable(ch, (function(ci){ return function(v){ state.cats[ci].name = v; save(); render(); }; })(cc));
+    gridEl.appendChild(ch);
+    for(j=0;j<m;j++){
+      var cl = el("div","itemlab col", state.cats[cc].items[j]);
+      place(cl, 2, 3 + k*m + j);
+      editable(cl, (function(ci,ii){ return function(v){ state.cats[ci].items[ii] = v; save(); renderSolution(); }; })(cc,j));
+      gridEl.appendChild(cl);
+    }
+  }
+
+  // row headers
+  for(r=0;r<blocks;r++){
+    var rc = rowCat(r);
+    var rh = el("div","catlab vert", state.cats[rc].name.toUpperCase());
+    place(rh, 3 + r*m, 1, m, 1);
+    editable(rh, (function(ci){ return function(v){ state.cats[ci].name = v; save(); render(); }; })(rc));
+    gridEl.appendChild(rh);
+    for(i=0;i<m;i++){
+      var rl = el("div","itemlab row", state.cats[rc].items[i]);
+      place(rl, 3 + r*m + i, 2);
+      editable(rl, (function(ci,ii){ return function(v){ state.cats[ci].items[ii] = v; save(); renderSolution(); }; })(rc,i));
+      gridEl.appendChild(rl);
+    }
+  }
+
+  // cells
+  for(r=0;r<blocks;r++){
+    for(k=0;k<blocks;k++){
+      if(!blockExists(r,k)) continue;
+      var ca = rowCat(r), cb = colCat(k);
+      for(i=0;i<m;i++) for(j=0;j<m;j++){
+        var v = getMark(ca,i,cb,j);
+        var cls = "cell" + (v===MARK_X ? " x" : v===MARK_V ? " v" : "");
+        if(i===0) cls += " bt";
+        if(i===m-1) cls += " bb";
+        if(j===0) cls += " bl";
+        if(j===m-1) cls += " br";
+        if(errs[mkKey(ca,i,cb,j)]) cls += " err";
+        var c = el("div", cls, v===MARK_X ? "✗" : v===MARK_V ? "✓" : "");
+        place(c, 3 + r*m + i, 3 + k*m + j);
+        c.title = state.cats[ca].items[i] + " × " + state.cats[cb].items[j];
+        bindCell(c, ca, i, cb, j);
+        gridEl.appendChild(c);
+      }
+    }
+  }
+
+  document.getElementById("btnUndo").disabled = !undoStack.length;
+  document.getElementById("btnRedo").disabled = !redoStack.length;
+  document.getElementById("btnAuto").className = state.auto ? "on" : "";
+  renderStatus(errs);
+  renderSolution();
+  renderClues();
+}
+
+function bindCell(c, ca, i, cb, j){
+  var timer = null, longPressed = false;
+  c.addEventListener("click", function(){
+    if(longPressed){ longPressed = false; return; }
+    cycle(ca,i,cb,j,false);
+  });
+  c.addEventListener("contextmenu", function(ev){ ev.preventDefault(); cycle(ca,i,cb,j,true); });
+  c.addEventListener("touchstart", function(){
+    longPressed = false;
+    timer = setTimeout(function(){ longPressed = true; cycle(ca,i,cb,j,true); }, 450);
+  }, {passive:true});
+  ["touchend","touchmove","touchcancel"].forEach(function(ev){
+    c.addEventListener(ev, function(){ clearTimeout(timer); }, {passive:true});
+  });
+}
+
+function renderStatus(errs){
+  var s = document.getElementById("status");
+  var nErr = Object.keys(errs).length;
+  if(nErr){ s.textContent = "Contradiction"; s.className = "bad"; return; }
+  var n = state.n, m = state.m, need = (n*(n-1)/2) * m, have = 0;
+  for(var k in state.marks) if(state.marks[k] === MARK_V) have++;
+  if(have === need){ s.textContent = "Solved"; s.className = "good"; }
+  else { s.textContent = have + " / " + need + " matched"; s.className = ""; }
+}
+
+function renderSolution(){
+  var t = document.getElementById("soln");
+  t.innerHTML = "";
+  var n = state.n, m = state.m, c, i;
+  var head = t.insertRow();
+  for(c=0;c<n;c++){
+    var th = document.createElement("th");
+    th.textContent = state.cats[c].name;
+    head.appendChild(th);
+  }
+  for(i=0;i<m;i++){
+    var tr = t.insertRow();
+    var td0 = tr.insertCell(); td0.textContent = state.cats[0].items[i];
+    for(c=1;c<n;c++){
+      var found = null;
+      for(var j=0;j<m;j++) if(getMark(0,i,c,j) === MARK_V){ found = state.cats[c].items[j]; break; }
+      var td = tr.insertCell();
+      if(found) td.textContent = found;
+      else { td.textContent = "—"; td.className = "miss"; }
+    }
+  }
+}
+
+/* ---------- clues ---------- */
+
+function renderClues(){
+  var ul = document.getElementById("clues");
+  ul.innerHTML = "";
+  if(!state.clues.length){
+    var li0 = el("li"); li0.appendChild(el("span","txt empty","No clues yet — hit + Add."));
+    ul.appendChild(li0); return;
+  }
+  state.clues.forEach(function(cl, idx){
+    var li = el("li", cl.done ? "done" : "");
+    var bt = el("button","mini noprint", cl.done ? "↺" : "✓");
+    bt.title = cl.done ? "Mark unused" : "Mark used";
+    bt.addEventListener("click", function(){ state.clues[idx].done = !state.clues[idx].done; save(); renderClues(); });
+    var tx = el("span","txt", cl.text);
+    editable(tx, function(v){ state.clues[idx].text = v; save(); });
+    var bd = el("button","mini noprint","✕");
+    bd.title = "Delete clue";
+    bd.addEventListener("click", function(){ state.clues.splice(idx,1); save(); renderClues(); });
+    li.appendChild(bt); li.appendChild(tx); li.appendChild(bd);
+    ul.appendChild(li);
+  });
+}
+
+/* ---------- controls ---------- */
+
+function fillSelect(id, from, to, val){
+  var s = document.getElementById(id);
+  s.innerHTML = "";
+  for(var v=from; v<=to; v++){
+    var o = document.createElement("option");
+    o.value = v; o.textContent = v;
+    if(v === val) o.selected = true;
+    s.appendChild(o);
+  }
+}
+
+function resize(n, m){
+  var kept = {};
+  for(var k in state.marks){
+    var mt = /^(\d+)\.(\d+)-(\d+)\.(\d+)$/.exec(k);
+    if(!mt) continue;
+    if(+mt[1] < n && +mt[3] < n && +mt[2] < m && +mt[4] < m) kept[k] = state.marks[k];
+  }
+  state.cats = makeCats(n, m, state.cats);
+  state.n = n; state.m = m; state.marks = kept;
+  undoStack.length = 0; redoStack.length = 0;
+  render(); save();
+}
+
+document.getElementById("nCats").addEventListener("change", function(){
+  resize(+this.value, state.m);
+});
+document.getElementById("nItems").addEventListener("change", function(){
+  resize(state.n, +this.value);
+});
+document.getElementById("btnAuto").addEventListener("click", function(){
+  state.auto = !state.auto; save(); render();
+});
+document.getElementById("btnUndo").addEventListener("click", undo);
+document.getElementById("btnRedo").addEventListener("click", redo);
+
+function applyZoom(){
+  document.documentElement.style.setProperty("--cs", state.cs + "px");
+  document.documentElement.style.setProperty("--lab", Math.round(state.cs * 3.4) + "px");
+}
+function zoom(d){
+  state.cs = Math.max(20, Math.min(52, (state.cs || 34) + d));
+  applyZoom(); save();
+}
+document.getElementById("btnZoomOut").addEventListener("click", function(){ zoom(-4); });
+document.getElementById("btnZoomIn").addEventListener("click", function(){ zoom(4); });
+document.getElementById("btnClear").addEventListener("click", function(){
+  if(!confirm("Clear all ✓ / ✗ marks? Names and clues are kept.")) return;
+  snapshot(); state.marks = {}; render(); save();
+});
+document.getElementById("btnReset").addEventListener("click", function(){
+  if(!confirm("Reset everything to defaults? Names, marks and clues are lost.")) return;
+  state = freshState(state.n, state.m);
+  undoStack.length = 0; redoStack.length = 0;
+  render(); save();
+});
+document.getElementById("btnAddClue").addEventListener("click", function(){
+  state.clues.push({text:"New clue…", done:false});
+  save(); renderClues();
+  var spans = document.querySelectorAll("#clues .txt");
+  var last = spans[spans.length-1];
+  if(last){ last.focus(); document.execCommand && document.execCommand("selectAll", false, null); }
+});
+document.getElementById("btnExport").addEventListener("click", function(){
+  var blob = new Blob([JSON.stringify(state,null,2)], {type:"application/json"});
+  var a = document.createElement("a");
+  a.href = URL.createObjectURL(blob);
+  a.download = "murdle-chart.json";
+  a.click();
+  setTimeout(function(){ URL.revokeObjectURL(a.href); }, 1000);
+});
+document.getElementById("btnImport").addEventListener("click", function(){
+  document.getElementById("fileIn").click();
+});
+document.getElementById("fileIn").addEventListener("change", function(){
+  var f = this.files && this.files[0];
+  if(!f) return;
+  var fr = new FileReader();
+  fr.onload = function(){
+    try{
+      var s = JSON.parse(fr.result);
+      if(!s.cats || !s.cats.length) throw 0;
+      s.marks = s.marks || {}; s.clues = s.clues || [];
+      s.n = s.cats.length; s.m = s.cats[0].items.length;
+      if(typeof s.auto !== "boolean") s.auto = true;
+      state = s;
+      undoStack.length = 0; redoStack.length = 0;
+      if(typeof s.cs !== "number") s.cs = defaultCellSize();
+      fillSelect("nCats", 2, 5, state.n);
+      fillSelect("nItems", 3, 6, state.m);
+      applyZoom(); render(); save();
+    }catch(e){ alert("That file is not a valid Murdle Chart export."); }
+  };
+  fr.readAsText(f);
+  this.value = "";
+});
+document.getElementById("btnPrint").addEventListener("click", function(){ window.print(); });
+
+document.addEventListener("keydown", function(ev){
+  if(ev.target.isContentEditable) return;
+  var mod = ev.metaKey || ev.ctrlKey;
+  if(mod && ev.key.toLowerCase() === "z"){ ev.preventDefault(); ev.shiftKey ? redo() : undo(); }
+  if(mod && ev.key.toLowerCase() === "y"){ ev.preventDefault(); redo(); }
+});
+
+/* ---------- boot ---------- */
+
+/* Offline support for the home-screen app. No-ops when opened from file://. */
+if("serviceWorker" in navigator && location.protocol.indexOf("http") === 0){
+  window.addEventListener("load", function(){
+    navigator.serviceWorker.register("sw.js").catch(function(){});
+  });
+}
+
+state = load() || freshState(3, 4);
+fillSelect("nCats", 2, 5, state.n);
+fillSelect("nItems", 3, 6, state.m);
+applyZoom();
+render();
+
+})();
+</script>
+</body>
+</html>
