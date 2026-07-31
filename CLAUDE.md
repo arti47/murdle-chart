@@ -55,8 +55,10 @@ LOCATIONS l1 [] [] [] []
 - Layout: `viewport-fit=cover` + `env(safe-area-inset-*)` padding, `-webkit-touch-callout:none` (long-press = reverse cycle, not iOS text callout), stacked sidebar under 760px, −/+ cell-size buttons (persisted).
 - Zoom is locked (use −/+ instead): viewport `maximum-scale=1,user-scalable=no` (honored in
   standalone, ignored in Safari tabs), `touch-action:manipulation` on `html,body` (no double-tap
-  zoom), `gesturestart/change/end` → `preventDefault()` (no pinch zoom), and 16px modal inputs
-  (smaller fonts make iOS zoom on focus).
+  zoom), `gesturestart/change/end` → `preventDefault()` (no pinch zoom), and 16px editables
+  (smaller fonts make iOS zoom on focus): modal inputs and clue text are plain 16px, while grid
+  labels go 16px **only while focused** and are scaled back down (`transform:scale()`, box grown
+  by 1/scale) so glyph and box size are unchanged on screen.
 - Offline: service worker caches app shell; registers only over http(s).
 - Update flow: `sw.js` does **not** `skipWaiting()` on install — a new build installs into a fresh
   cache and waits. The page detects `reg.waiting` / `updatefound` and shows a bottom toast

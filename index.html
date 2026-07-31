@@ -106,6 +106,13 @@ main{display:flex;gap:22px;align-items:flex-start;padding:18px;flex-wrap:wrap}
 }
 [contenteditable]{outline:none}
 [contenteditable]:focus{background:#fff6b8;color:var(--ink)}
+/* iOS zooms the page in when an editable under 16px is focused. Edit at 16px and
+   scale back down, so the label keeps its size while the zoom never fires.
+   The box is grown by 1/scale first, so the painted result is the same size too. */
+.itemlab:focus{font-size:16px;width:133.333%;height:133.333%;transform:scale(.75)}
+.itemlab.col:focus{transform:rotate(180deg) scale(.75)}
+.catlab:focus{font-size:16px;width:145.4545%;height:145.4545%;transform:scale(.6875)}
+.catlab.vert:focus{transform:rotate(180deg) scale(.6875)}
 .corner{background:transparent;border:none}
 
 #side{flex:1 1 280px;min-width:260px;max-width:420px}
@@ -118,7 +125,8 @@ main{display:flex;gap:22px;align-items:flex-start;padding:18px;flex-wrap:wrap}
 .panel h2 button:hover{background:var(--paper);color:var(--ink)}
 .panel .body{padding:8px 10px}
 #clues{list-style:none;margin:0;padding:0}
-#clues li{display:flex;gap:7px;align-items:flex-start;padding:6px 10px;border-bottom:1px solid #e4e4e4;font-size:13px;line-height:1.4}
+/* 16px, not 13: clue text is contenteditable, and anything smaller zooms iOS in on focus */
+#clues li{display:flex;gap:7px;align-items:flex-start;padding:6px 10px;border-bottom:1px solid #e4e4e4;font-size:16px;line-height:1.4}
 #clues li:last-child{border-bottom:none}
 #clues .txt{flex:1;min-width:0;word-wrap:break-word}
 #clues li.done .txt{text-decoration:line-through;opacity:.45}
@@ -182,6 +190,8 @@ main{display:flex;gap:22px;align-items:flex-start;padding:18px;flex-wrap:wrap}
   .hint{padding:0 12px 24px}
   #side{max-width:none;flex-basis:100%}
   .itemlab{font-size:11px}
+  .itemlab:focus{font-size:16px;width:145.4545%;height:145.4545%;transform:scale(.6875)}
+  .itemlab.col:focus{transform:rotate(180deg) scale(.6875)}
 }
 /* standalone (home-screen) mode: pad under the iOS status bar */
 @media all and (display-mode:standalone){
