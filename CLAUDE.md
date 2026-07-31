@@ -52,7 +52,11 @@ LOCATIONS l1 [] [] [] []
 - `index.html` is self-contained (icon inlined as base64) — but **iOS only offers "Add to Home Screen" for `http(s)` pages, not `file://`**. The folder must be served from a URL.
 - Files: `index.html` (app), `sw.js` (offline cache), `icon-512.png` (manifest icon).
 - Meta: `apple-mobile-web-app-capable`, `black-translucent` status bar, title "Murdle", inline `apple-touch-icon`, data-URI web manifest (`display:standalone`).
-- Layout: `viewport-fit=cover` + `env(safe-area-inset-*)` padding, `touch-action:manipulation` (no double-tap zoom), `-webkit-touch-callout:none` (long-press = reverse cycle, not iOS text callout), stacked sidebar under 760px, −/+ cell-size buttons (persisted).
+- Layout: `viewport-fit=cover` + `env(safe-area-inset-*)` padding, `-webkit-touch-callout:none` (long-press = reverse cycle, not iOS text callout), stacked sidebar under 760px, −/+ cell-size buttons (persisted).
+- Zoom is locked (use −/+ instead): viewport `maximum-scale=1,user-scalable=no` (honored in
+  standalone, ignored in Safari tabs), `touch-action:manipulation` on `html,body` (no double-tap
+  zoom), `gesturestart/change/end` → `preventDefault()` (no pinch zoom), and 16px modal inputs
+  (smaller fonts make iOS zoom on focus).
 - Offline: service worker caches app shell; registers only over http(s).
 - Update flow: `sw.js` does **not** `skipWaiting()` on install — a new build installs into a fresh
   cache and waits. The page detects `reg.waiting` / `updatefound` and shows a bottom toast

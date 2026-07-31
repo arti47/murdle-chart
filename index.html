@@ -2,7 +2,7 @@
 <html lang="en">
 <head>
 <meta charset="utf-8">
-<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,user-scalable=no,viewport-fit=cover">
 <title>Murdle Chart</title>
 
 <!-- iOS / PWA: Add to Home Screen -->
@@ -25,7 +25,7 @@
   --accent:#b8121b;
 }
 *{box-sizing:border-box}
-html,body{margin:0;padding:0}
+html,body{margin:0;padding:0;touch-action:manipulation}  /* no double-tap zoom */
 body{
   background:var(--bg);
   color:var(--ink);
@@ -148,11 +148,12 @@ main{display:flex;gap:22px;align-items:flex-start;padding:18px;flex-wrap:wrap}
 .sheet .foot{display:flex;gap:8px;padding:2px 10px 12px}
 #namesCols{display:grid;grid-template-columns:repeat(auto-fit,minmax(170px,1fr));gap:10px;padding:10px}
 #namesCols .nc{display:flex;flex-direction:column;gap:6px;min-width:0}
+/* 16px: anything smaller makes iOS Safari zoom in when the field is focused */
 #namesCols input,#namesCols textarea{
-  font:inherit;font-size:13px;width:100%;border:2px solid var(--ink);border-radius:0;
+  font:inherit;font-size:16px;width:100%;border:2px solid var(--ink);border-radius:0;
   background:var(--paper);color:var(--ink);padding:5px 6px;
 }
-#namesCols input{font-size:12px;font-weight:800;letter-spacing:.08em;text-transform:uppercase}
+#namesCols input{font-weight:800;letter-spacing:.08em;text-transform:uppercase}
 #namesCols textarea{min-height:140px;resize:vertical;line-height:1.55}
 
 /* update toast */
@@ -762,6 +763,13 @@ document.addEventListener("keydown", function(ev){
   var mod = ev.metaKey || ev.ctrlKey;
   if(mod && ev.key.toLowerCase() === "z"){ ev.preventDefault(); ev.shiftKey ? redo() : undo(); }
   if(mod && ev.key.toLowerCase() === "y"){ ev.preventDefault(); redo(); }
+});
+
+/* ---------- zoom lock (iOS) ---------- */
+/* viewport user-scalable=no covers standalone mode; these kill pinch-zoom in Safari,
+   where iOS ignores the meta tag. Double-tap zoom is handled by touch-action:manipulation. */
+["gesturestart","gesturechange","gestureend"].forEach(function(ev){
+  document.addEventListener(ev, function(e){ e.preventDefault(); }, {passive:false});
 });
 
 /* ---------- toast ---------- */
