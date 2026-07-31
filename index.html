@@ -18,11 +18,37 @@
 :root{
   --cs:34px;
   --lab:130px;
+  --catcol:26px;
   --ink:#111;
-  --line:#c9c9c9;
-  --bg:#f4f1ea;
   --paper:#fff;
+  --bg:#f4f1ea;
+  --panel:#efeadf;
+  --line:#c9c9c9;
+  --edge:#111;
+  --hdrbg:#111;
+  --hdrfg:#fff;
+  --hl:#fff6cf;
+  --hllab:#ffe6a0;
+  --err:#ffdede;
+  --errh:#ffcaca;
+  --focus:#fff6b8;
   --accent:#b8121b;
+  --ok:#0a7d34;
+  --dim:#6a6a6a;
+  --shadow:rgba(0,0,0,.28);
+}
+/* dark: follow the system unless the user pinned a theme */
+@media (prefers-color-scheme:dark){
+  :root:not([data-theme="light"]){
+    --ink:#e9e7e2;--paper:#1b1b1e;--bg:#0f0f11;--panel:#191a1d;--line:#3a3a3e;--edge:#7b7a80;
+    --hdrbg:#000;--hdrfg:#e9e7e2;--hl:#2b2a1d;--hllab:#403a22;--err:#4a1f22;--errh:#5d272b;
+    --focus:#4a4420;--accent:#ff6b74;--ok:#4bd07e;--dim:#98979d;--shadow:rgba(0,0,0,.6);
+  }
+}
+:root[data-theme="dark"]{
+  --ink:#e9e7e2;--paper:#1b1b1e;--bg:#0f0f11;--panel:#191a1d;--line:#3a3a3e;--edge:#7b7a80;
+  --hdrbg:#000;--hdrfg:#e9e7e2;--hl:#2b2a1d;--hllab:#403a22;--err:#4a1f22;--errh:#5d272b;
+  --focus:#4a4420;--accent:#ff6b74;--ok:#4bd07e;--dim:#98979d;--shadow:rgba(0,0,0,.6);
 }
 *{box-sizing:border-box}
 html,body{margin:0;padding:0;touch-action:manipulation}  /* no double-tap zoom */
@@ -36,7 +62,7 @@ body{
 }
 header{
   display:flex;align-items:baseline;gap:14px;flex-wrap:wrap;
-  padding:14px 18px 10px;border-bottom:3px solid var(--ink);
+  padding:14px 18px 10px;border-bottom:3px solid var(--edge);
 }
 h1{
   margin:0;font-size:26px;letter-spacing:.14em;text-transform:uppercase;
@@ -44,15 +70,20 @@ h1{
 }
 h1 span{color:var(--accent)}
 .tag{font-size:11px;letter-spacing:.18em;text-transform:uppercase;opacity:.6}
+#pzName{
+  font-size:11px;letter-spacing:.12em;text-transform:uppercase;font-weight:700;
+  border-bottom:1px dashed var(--line);min-width:60px;
+}
 
 #controls{
+  position:relative;
   display:flex;gap:10px;flex-wrap:wrap;align-items:center;
-  padding:10px 18px;border-bottom:2px solid var(--ink);background:#efeadf;
+  padding:10px 18px;border-bottom:2px solid var(--edge);background:var(--panel);
 }
-#controls label{font-size:11px;letter-spacing:.1em;text-transform:uppercase;font-weight:700}
+#controls label,#moreMenu label{font-size:11px;letter-spacing:.1em;text-transform:uppercase;font-weight:700}
 select,button{
   font:inherit;font-size:12px;font-weight:700;letter-spacing:.06em;text-transform:uppercase;
-  background:var(--paper);color:var(--ink);border:2px solid var(--ink);
+  background:var(--paper);color:var(--ink);border:2px solid var(--edge);
   padding:5px 9px;cursor:pointer;border-radius:0;
   touch-action:manipulation;-webkit-tap-highlight-color:transparent;
 }
@@ -60,7 +91,18 @@ button:hover{background:var(--ink);color:var(--paper)}
 button:disabled{opacity:.35;cursor:default}
 button:disabled:hover{background:var(--paper);color:var(--ink)}
 button.on{background:var(--ink);color:var(--paper)}
-.sep{width:1px;height:22px;background:#bbb}
+.sep{width:1px;height:22px;background:var(--line)}
+
+#moreMenu{
+  position:absolute;right:12px;top:100%;z-index:45;min-width:200px;
+  background:var(--paper);border:3px solid var(--edge);padding:8px;
+  display:grid;gap:6px;box-shadow:0 8px 22px var(--shadow);
+}
+#moreMenu[hidden]{display:none}
+#moreMenu button{width:100%;text-align:left}
+#moreMenu .row{display:flex;gap:6px;align-items:center;justify-content:space-between}
+#moreMenu .row select{flex:1}
+#moreMenu hr{border:0;border-top:1px solid var(--line);margin:2px 0}
 
 main{display:flex;gap:22px;align-items:flex-start;padding:18px;flex-wrap:wrap}
 #gridWrap{
@@ -77,35 +119,39 @@ main{display:flex;gap:22px;align-items:flex-start;padding:18px;flex-wrap:wrap}
   -webkit-touch-callout:none;touch-action:manipulation;
   padding:0;
 }
-.cell:hover{background:#fffbe6}
-.cell.x{color:#6a6a6a}
-.cell.v{color:#0a7d34}
-.cell.err{background:#ffe0e0}
-.cell.err:hover{background:#ffd0d0}
-.bt{border-top:3px solid var(--ink)}
-.bb{border-bottom:3px solid var(--ink)}
-.bl{border-left:3px solid var(--ink)}
-.br{border-right:3px solid var(--ink)}
+.cell.hl{background:var(--hl)}
+.cell.auto{opacity:.55}                  /* derived by Deduce, not entered by hand */
+.cell.x{color:var(--dim)}
+.cell.v{color:var(--ok)}
+.cell.q{color:var(--accent);font-size:15px;opacity:.75}
+.cell.err{background:var(--err)}
+.cell.err.hl{background:var(--errh)}
+.cell.cur{box-shadow:inset 0 0 0 2px var(--accent)}
+.bt{border-top:3px solid var(--edge)}
+.bb{border-bottom:3px solid var(--edge)}
+.bl{border-left:3px solid var(--edge)}
+.br{border-right:3px solid var(--edge)}
 
 .catlab{
   display:flex;align-items:center;justify-content:center;text-align:center;
   font-size:11px;font-weight:800;letter-spacing:.14em;text-transform:uppercase;
-  background:var(--ink);color:var(--paper);border:1px solid var(--ink);
+  background:var(--hdrbg);color:var(--hdrfg);border:1px solid var(--edge);
   overflow:hidden;padding:2px;
 }
-.catlab.vert{writing-mode:vertical-rl;transform:rotate(180deg)}
+.catlab.vert{writing-mode:vertical-rl;transform:rotate(180deg);position:sticky;left:0;z-index:4}
 .itemlab{
   font-size:12px;font-weight:700;display:flex;align-items:center;
   border:1px solid var(--line);background:var(--paper);padding:0 6px;
   overflow:hidden;white-space:nowrap;
 }
-.itemlab.row{justify-content:flex-end;text-align:right}
+.itemlab.hl{background:var(--hllab)}
+.itemlab.row{justify-content:flex-end;text-align:right;position:sticky;left:var(--catcol);z-index:3}
 .itemlab.col{
   writing-mode:vertical-rl;transform:rotate(180deg);
   justify-content:flex-end;padding:6px 0;
 }
 [contenteditable]{outline:none}
-[contenteditable]:focus{background:#fff6b8;color:var(--ink)}
+[contenteditable]:focus{background:var(--focus);color:var(--ink)}
 /* iOS zooms the page in when an editable under 16px is focused. Edit at 16px and
    scale back down, so the label keeps its size while the zoom never fires.
    The box is grown by 1/scale first, so the painted result is the same size too. */
@@ -113,85 +159,107 @@ main{display:flex;gap:22px;align-items:flex-start;padding:18px;flex-wrap:wrap}
 .itemlab.col:focus{transform:rotate(180deg) scale(.75)}
 .catlab:focus{font-size:16px;width:145.4545%;height:145.4545%;transform:scale(.6875)}
 .catlab.vert:focus{transform:rotate(180deg) scale(.6875)}
-.corner{background:transparent;border:none}
+.corner{background:var(--bg);border:none;position:sticky;left:0;z-index:5}
 
 #side{flex:1 1 280px;min-width:260px;max-width:420px}
-.panel{background:var(--paper);border:3px solid var(--ink);margin-bottom:16px}
+#sideHandle{display:none}
+.panel{background:var(--paper);border:3px solid var(--edge);margin-bottom:16px}
 .panel h2{
   margin:0;padding:7px 10px;font-size:12px;letter-spacing:.16em;text-transform:uppercase;
-  background:var(--ink);color:var(--paper);display:flex;justify-content:space-between;align-items:center;
+  background:var(--hdrbg);color:var(--hdrfg);display:flex;justify-content:space-between;align-items:center;
 }
-.panel h2 button{padding:2px 7px;font-size:10px;border-width:1px;border-color:var(--paper);background:transparent;color:var(--paper)}
-.panel h2 button:hover{background:var(--paper);color:var(--ink)}
+.panel h2 button{padding:2px 7px;font-size:10px;border-width:1px;border-color:var(--hdrfg);background:transparent;color:var(--hdrfg)}
+.panel h2 button:hover{background:var(--hdrfg);color:var(--hdrbg)}
 .panel .body{padding:8px 10px}
 #clues{list-style:none;margin:0;padding:0}
 /* 16px, not 13: clue text is contenteditable, and anything smaller zooms iOS in on focus */
-#clues li{display:flex;gap:7px;align-items:flex-start;padding:6px 10px;border-bottom:1px solid #e4e4e4;font-size:16px;line-height:1.4}
+#clues li{display:flex;gap:7px;align-items:flex-start;padding:6px 10px;border-bottom:1px solid var(--line);font-size:16px;line-height:1.4}
 #clues li:last-child{border-bottom:none}
 #clues .txt{flex:1;min-width:0;word-wrap:break-word}
 #clues li.done .txt{text-decoration:line-through;opacity:.45}
-#clues .mini{border:1px solid #bbb;background:#fff;font-size:11px;padding:1px 6px;line-height:1.4;flex:0 0 auto}
+#clues .mini{border:1px solid var(--line);background:var(--paper);font-size:11px;padding:1px 6px;line-height:1.4;flex:0 0 auto}
 #clues .empty{opacity:.5;font-style:italic}
 #soln{width:100%;border-collapse:collapse;font-size:12px}
 #soln th,#soln td{border:1px solid var(--line);padding:4px 6px;text-align:left}
-#soln th{background:#f0f0f0;text-transform:uppercase;letter-spacing:.08em;font-size:10px}
-#soln td.miss{color:#bbb}
+#soln th{background:var(--panel);text-transform:uppercase;letter-spacing:.08em;font-size:10px}
+#soln td.miss{color:var(--dim);opacity:.6}
 .hint{font-size:11px;line-height:1.5;opacity:.7;padding:0 18px 22px}
+#status{font-size:11px;font-weight:700;letter-spacing:.08em;text-transform:uppercase}
+#status.bad{color:var(--accent)}
+#status.good{color:var(--ok)}
 
-/* bulk name editor */
+/* modals */
 .modal{
   position:fixed;inset:0;z-index:50;background:rgba(0,0,0,.55);
   display:flex;align-items:flex-start;justify-content:center;overflow:auto;
   padding:calc(20px + env(safe-area-inset-top)) 12px calc(20px + env(safe-area-inset-bottom));
 }
 .modal[hidden]{display:none}
-.sheet{background:var(--paper);border:3px solid var(--ink);width:100%;max-width:900px;margin:auto}
+.sheet{background:var(--paper);border:3px solid var(--edge);width:100%;max-width:900px;margin:auto}
 .sheet h2{
   margin:0;padding:7px 10px;font-size:12px;letter-spacing:.16em;text-transform:uppercase;
-  background:var(--ink);color:var(--paper);display:flex;justify-content:space-between;align-items:center;
+  background:var(--hdrbg);color:var(--hdrfg);display:flex;justify-content:space-between;align-items:center;
 }
-.sheet h2 button{padding:2px 7px;font-size:10px;border-width:1px;border-color:var(--paper);background:transparent;color:var(--paper)}
-.sheet h2 button:hover{background:var(--paper);color:var(--ink)}
+.sheet h2 button{padding:2px 7px;font-size:10px;border-width:1px;border-color:var(--hdrfg);background:transparent;color:var(--hdrfg)}
+.sheet h2 button:hover{background:var(--hdrfg);color:var(--hdrbg)}
 .sheet .note{margin:0;padding:9px 10px 0;font-size:11px;line-height:1.5;opacity:.7}
 .sheet .foot{display:flex;gap:8px;padding:2px 10px 12px}
 #namesCols{display:grid;grid-template-columns:repeat(auto-fit,minmax(170px,1fr));gap:10px;padding:10px}
 #namesCols .nc{display:flex;flex-direction:column;gap:6px;min-width:0}
 /* 16px: anything smaller makes iOS Safari zoom in when the field is focused */
-#namesCols input,#namesCols textarea{
-  font:inherit;font-size:16px;width:100%;border:2px solid var(--ink);border-radius:0;
+#namesCols input,#namesCols textarea,#puzzList input{
+  font:inherit;font-size:16px;width:100%;border:2px solid var(--edge);border-radius:0;
   background:var(--paper);color:var(--ink);padding:5px 6px;
 }
 #namesCols input{font-weight:800;letter-spacing:.08em;text-transform:uppercase}
 #namesCols textarea{min-height:140px;resize:vertical;line-height:1.55}
+#puzzList{display:grid;gap:8px;padding:10px}
+#puzzList .pz{display:flex;gap:6px;align-items:center;flex-wrap:wrap;border:1px solid var(--line);padding:6px}
+#puzzList .pz.active{border-color:var(--accent);border-width:2px}
+#puzzList .pz input{flex:1 1 160px;min-width:120px}
+#puzzList .meta{font-size:10px;letter-spacing:.08em;text-transform:uppercase;opacity:.55;flex:0 0 auto}
 
 /* update toast */
 .toast{
   position:fixed;z-index:60;left:50%;transform:translateX(-50%);
   bottom:calc(16px + env(safe-area-inset-bottom));
   display:flex;align-items:center;gap:10px;max-width:calc(100vw - 24px);
-  background:var(--ink);color:var(--paper);border:3px solid var(--ink);
-  padding:9px 10px;box-shadow:0 6px 18px rgba(0,0,0,.35);
+  background:var(--hdrbg);color:var(--hdrfg);border:3px solid var(--edge);
+  padding:9px 10px;box-shadow:0 6px 18px var(--shadow);
 }
 .toast[hidden]{display:none}
 .toast .msg{font-size:12px;font-weight:700;letter-spacing:.08em;text-transform:uppercase}
-.toast button{border-color:var(--paper);padding:4px 9px;font-size:11px}
-.toast button.ghost{background:transparent;color:var(--paper)}
-.toast button.ghost:hover{background:var(--paper);color:var(--ink)}
-#status{font-size:11px;font-weight:700;letter-spacing:.08em;text-transform:uppercase}
-#status.bad{color:var(--accent)}
-#status.good{color:#0a7d34}
+.toast button{border-color:var(--hdrfg);padding:4px 9px;font-size:11px;background:var(--paper);color:var(--ink)}
+.toast button.ghost{background:transparent;color:var(--hdrfg)}
+.toast button.ghost:hover{background:var(--hdrfg);color:var(--hdrbg)}
 
 @media (max-width:760px){
   header{padding:10px 12px 8px}
   h1{font-size:20px}
   #controls{padding:8px 12px;gap:7px}
   select,button{padding:7px 9px}          /* bigger touch targets */
-  main{padding:12px;gap:14px}
-  .hint{padding:0 12px 24px}
-  #side{max-width:none;flex-basis:100%}
+  main{padding:12px 12px 60px;gap:14px}
+  .hint{padding:0 12px 70px}
   .itemlab{font-size:11px}
   .itemlab:focus{font-size:16px;width:145.4545%;height:145.4545%;transform:scale(.6875)}
   .itemlab.col:focus{transform:rotate(180deg) scale(.6875)}
+  /* clue / solution drawer: peeks above the fold, swipes up over the grid */
+  #side{
+    position:fixed;left:0;right:0;bottom:0;z-index:40;margin:0;max-width:none;min-width:0;
+    background:var(--paper);border-top:3px solid var(--edge);
+    display:flex;flex-direction:column;max-height:78vh;
+    transform:translateY(calc(100% - 46px));transition:transform .18s ease;
+    padding-bottom:env(safe-area-inset-bottom);
+  }
+  #side.open{transform:translateY(0)}
+  #sideHandle{
+    display:flex;width:100%;height:46px;flex:0 0 46px;align-items:center;justify-content:space-between;
+    border:0;border-bottom:2px solid var(--edge);background:var(--hdrbg);color:var(--hdrfg);font-size:12px;
+  }
+  #sideHandle:hover{background:var(--hdrbg);color:var(--hdrfg)}
+  #sideBody{overflow:auto;-webkit-overflow-scrolling:touch;padding:10px 10px 0}
+  .panel{margin-bottom:10px}
+  .toast{bottom:calc(58px + env(safe-area-inset-bottom))}
 }
 /* standalone (home-screen) mode: pad under the iOS status bar */
 @media all and (display-mode:standalone){
@@ -201,10 +269,19 @@ main{display:flex;gap:22px;align-items:flex-start;padding:18px;flex-wrap:wrap}
   header{padding-top:calc(14px + env(safe-area-inset-top))}
 }
 @media print{
-  #controls,#side .noprint,.hint,header .tag{display:none!important}
+  @page{size:landscape;margin:10mm}
+  :root{
+    --cs:24px;--lab:104px;--ink:#000;--paper:#fff;--bg:#fff;--panel:#fff;
+    --line:#999;--edge:#000;--hdrbg:#000;--hdrfg:#fff;--dim:#555;
+  }
+  #controls,#toast,.modal,#sideHandle,.hint,header .tag,.noprint{display:none!important}
   body{background:#fff}
-  main{padding:0}
+  main{padding:0;display:block}
+  #gridWrap{overflow:visible}
+  #side{position:static;transform:none;max-height:none;max-width:none;margin-top:14px;border-top:0}
+  #sideBody{overflow:visible;padding:0}
   .cell:hover{background:#fff}
+  .cell.hl,.itemlab.hl{background:#fff}
 }
 </style>
 </head>
@@ -213,16 +290,12 @@ main{display:flex;gap:22px;align-items:flex-start;padding:18px;flex-wrap:wrap}
 <header>
   <h1>Murdle<span>·</span>Chart</h1>
   <span class="tag">Deduction Grid</span>
+  <span id="pzName" title="Puzzle name"></span>
   <span id="status"></span>
 </header>
 
 <div id="controls">
-  <label for="nCats">Cats</label>
-  <select id="nCats"></select>
-  <label for="nItems">Items</label>
-  <select id="nItems"></select>
-  <span class="sep"></span>
-  <button id="btnAuto" title="Auto-fill ✗ across the row and column of a ✓">Auto ✗</button>
+  <button id="btnAuto" title="Auto-deduce: fill ✗ / ✓ that follow from the marks you place">Deduce</button>
   <button id="btnUndo">Undo</button>
   <button id="btnRedo">Redo</button>
   <span class="sep"></span>
@@ -230,13 +303,22 @@ main{display:flex;gap:22px;align-items:flex-start;padding:18px;flex-wrap:wrap}
   <button id="btnZoomIn" title="Bigger cells">+</button>
   <span class="sep"></span>
   <button id="btnNames" title="Edit all category and item names at once">Names</button>
-  <span class="sep"></span>
-  <button id="btnClear">Clear Marks</button>
-  <button id="btnReset">Reset All</button>
-  <span class="sep"></span>
-  <button id="btnExport">Export</button>
-  <button id="btnImport">Import</button>
-  <button id="btnPrint">Print</button>
+  <button id="btnMore" title="More actions">⋯ More</button>
+
+  <div id="moreMenu" hidden>
+    <div class="row"><label for="nCats">Cats</label><select id="nCats"></select></div>
+    <div class="row"><label for="nItems">Items</label><select id="nItems"></select></div>
+    <hr>
+    <button id="btnPuzzles">Puzzles…</button>
+    <button id="btnTheme">Theme: Auto</button>
+    <hr>
+    <button id="btnClear">Clear Marks</button>
+    <button id="btnReset">Reset Puzzle</button>
+    <hr>
+    <button id="btnExport">Export JSON</button>
+    <button id="btnImport">Import JSON</button>
+    <button id="btnPrint">Print</button>
+  </div>
   <input type="file" id="fileIn" accept="application/json,.json" hidden>
 </div>
 
@@ -244,13 +326,16 @@ main{display:flex;gap:22px;align-items:flex-start;padding:18px;flex-wrap:wrap}
   <div id="gridWrap"><div id="grid"></div></div>
 
   <div id="side">
-    <div class="panel">
-      <h2>Clues <button id="btnAddClue" class="noprint">+ Add</button></h2>
-      <ul id="clues"></ul>
-    </div>
-    <div class="panel">
-      <h2>Solution</h2>
-      <div class="body"><table id="soln"></table></div>
+    <button id="sideHandle" class="noprint"><span id="handleTxt">Clues</span><span id="handleArrow">▲</span></button>
+    <div id="sideBody">
+      <div class="panel">
+        <h2>Clues <button id="btnAddClue" class="noprint">+ Add</button></h2>
+        <ul id="clues"></ul>
+      </div>
+      <div class="panel">
+        <h2>Solution</h2>
+        <div class="body"><table id="soln"></table></div>
+      </div>
     </div>
   </div>
 </main>
@@ -276,18 +361,34 @@ main{display:flex;gap:22px;align-items:flex-start;padding:18px;flex-wrap:wrap}
   </div>
 </div>
 
+<div id="puzzModal" class="modal noprint" hidden>
+  <div class="sheet" role="dialog" aria-modal="true" aria-label="Puzzles">
+    <h2>Puzzles <button id="btnPuzzClose" title="Close">✕</button></h2>
+    <p class="note">Each puzzle keeps its own grid, names and clues. Marks autosave per puzzle.</p>
+    <div id="puzzList"></div>
+    <div class="foot">
+      <button id="btnPuzzNew">+ New Puzzle</button>
+      <button id="btnPuzzDone">Done</button>
+    </div>
+  </div>
+</div>
+
 <p class="hint">
-  Click a cell: blank → <b>✗</b> → <b>✓</b> → blank. Right-click (or long-press on touch) cycles backwards.
-  Click any category or item name to rename it, or hit <b>Names</b> to paste a whole puzzle's
-  categories and items in one go. Everything autosaves in this browser.
+  Click a cell: blank → <b>✗</b> → <b>✓</b> → <b>?</b> → blank. Right-click (or long-press on touch)
+  cycles backwards. Arrow keys move the cursor; <b>x</b> / <b>v</b> / <b>?</b> mark it, Backspace clears.
+  Click any name to rename it, or hit <b>Names</b> to paste a whole puzzle in one go.
+  <b>Deduce</b> propagates ✗ and ✓ across every block. Everything autosaves in this browser.
 </p>
 
 <script>
 (function(){
 "use strict";
 
-var KEY = "murdle-chart-v1";
-var MARK_X = 1, MARK_V = 2;
+var LIB_KEY = "murdle-lib-v1", OLD_KEY = "murdle-chart-v1";
+var MARK_X = 1, MARK_V = 2, MARK_Q = 3;
+var CYCLE = [0, MARK_X, MARK_V, MARK_Q];
+var GLYPH = {}; GLYPH[MARK_X] = "✗"; GLYPH[MARK_V] = "✓"; GLYPH[MARK_Q] = "?";
+var MCLS  = {}; MCLS[MARK_X]  = " x"; MCLS[MARK_V]  = " v"; MCLS[MARK_Q]  = " q";
 
 var DEFAULTS = [
   {name:"Suspects",  items:["Miss Saffron","Mx. Tangerine","Chef Aubergine","Dr. Crimson","Sgt. Cobalt","Lady Violet"]},
@@ -297,8 +398,14 @@ var DEFAULTS = [
   {name:"Time",      items:["Morning","Noon","Dusk","Midnight","Dawn","Twilight"]}
 ];
 
-var state = null;
+var lib = null, state = null;
 var undoStack = [], redoStack = [];
+
+/* render caches, rebuilt by render() */
+var cellEls = {};      // markKey -> cell element
+var posKey  = {};      // "gr_gc"  -> {ca,ia,cb,ib,key}
+var rowCells = [], colCells = [], rowLabs = [], colLabs = [];
+var cursor = {r:0, c:0}, hl = null;
 
 /* ---------- model ---------- */
 
@@ -324,15 +431,39 @@ function defaultCellSize(){
 function freshState(n, m){
   return {n:n, m:m, cats:makeCats(n, m, null), marks:{}, clues:[], auto:true, cs:defaultCellSize()};
 }
+function normalize(s){
+  if(!s || !s.cats || !s.cats.length) return null;
+  s.marks = s.marks || {};
+  s.clues = s.clues || [];
+  s.n = s.cats.length;
+  s.m = s.cats[0].items.length;
+  if(typeof s.auto !== "boolean") s.auto = true;
+  if(typeof s.cs !== "number") s.cs = defaultCellSize();
+  return s;
+}
 
 function mkKey(cA,iA,cB,iB){
   if(cA > cB){ var t=cA;cA=cB;cB=t; t=iA;iA=iB;iB=t; }
   return cA+"."+iA+"-"+cB+"."+iB;
 }
-function getMark(cA,iA,cB,iB){ return state.marks[mkKey(cA,iA,cB,iB)] || 0; }
-function setMark(cA,iA,cB,iB,v){
+/* state.marks holds only what the player entered. `view` is that plus everything
+   deduce() derives from it, rebuilt on every refresh — so clearing a mark never
+   leaves a stale deduction behind, and derived marks are drawn dimmed. */
+var view = {};
+function getMark(cA,iA,cB,iB){ return view[mkKey(cA,iA,cB,iB)] || 0; }
+function setUserMark(cA,iA,cB,iB,v){
   var k = mkKey(cA,iA,cB,iB);
   if(v) state.marks[k] = v; else delete state.marks[k];
+}
+function setMark(cA,iA,cB,iB,v){          // derived write: never overrides the player
+  var k = mkKey(cA,iA,cB,iB);
+  if(state.marks[k]) return;
+  if(v) view[k] = v; else delete view[k];
+}
+function recompute(){
+  view = {};
+  for(var k in state.marks) view[k] = state.marks[k];
+  if(state.auto) deduce();
 }
 
 /* Category index for each on-screen block row / block column.
@@ -343,87 +474,173 @@ function colCat(k){ return k + 1; }
 function rowCat(r){ return r === 0 ? 0 : state.n - r; }
 function blockExists(r,k){ return k < state.n - 1 - r; }
 
-/* ---------- persistence ---------- */
+/* ---------- puzzle library ---------- */
 
+function newId(){ return "p" + Date.now().toString(36) + Math.random().toString(36).slice(2,6); }
+function mkPuzzle(name, st){ return {id:newId(), name:name, updated:Date.now(), state: st || freshState(3,4)}; }
+
+function loadLib(){
+  var L = null;
+  try{ L = JSON.parse(localStorage.getItem(LIB_KEY)); }catch(e){}
+  if(L && L.puzzles && L.puzzles.length){
+    L.prefs = L.prefs || {theme:"auto"};
+    L.puzzles.forEach(function(p){ p.state = normalize(p.state) || freshState(3,4); });
+    var ok = L.puzzles.some(function(p){ return p.id === L.active; });
+    if(!ok) L.active = L.puzzles[0].id;
+    return L;
+  }
+  var old = null;                                   // migrate the single-slot v1 save
+  try{ old = normalize(JSON.parse(localStorage.getItem(OLD_KEY))); }catch(e){}
+  var p = mkPuzzle("Puzzle 1", old);
+  return {active:p.id, puzzles:[p], prefs:{theme:"auto"}};
+}
+function saveLib(){ try{ localStorage.setItem(LIB_KEY, JSON.stringify(lib)); }catch(e){} }
+function activePuzzle(){
+  for(var i=0;i<lib.puzzles.length;i++) if(lib.puzzles[i].id === lib.active) return lib.puzzles[i];
+  return lib.puzzles[0];
+}
 function save(){
-  try{ localStorage.setItem(KEY, JSON.stringify(state)); }catch(e){}
+  var p = activePuzzle();
+  p.state = state; p.updated = Date.now();
+  saveLib();
+  document.getElementById("pzName").textContent = p.name;
 }
-function load(){
-  try{
-    var raw = localStorage.getItem(KEY);
-    if(!raw) return null;
-    var s = JSON.parse(raw);
-    if(!s || !s.cats || !s.cats.length) return null;
-    s.marks = s.marks || {};
-    s.clues = s.clues || [];
-    s.n = s.cats.length;
-    s.m = s.cats[0].items.length;
-    if(typeof s.auto !== "boolean") s.auto = true;
-    if(typeof s.cs !== "number") s.cs = defaultCellSize();
-    return s;
-  }catch(e){ return null; }
+function openPuzzle(id){
+  save();
+  lib.active = id;
+  state = activePuzzle().state;
+  undoStack.length = 0; redoStack.length = 0;
+  cursor = {r:0, c:0};
+  syncSelects(); applyZoom(); render(); save(); renderPuzzles();
 }
 
-/* ---------- undo ---------- */
+/* ---------- undo (whole state: marks, names, clues, size) ---------- */
 
 function snapshot(){
-  undoStack.push(JSON.stringify(state.marks));
-  if(undoStack.length > 200) undoStack.shift();
+  undoStack.push(JSON.stringify(state));
+  if(undoStack.length > 80) undoStack.shift();
   redoStack.length = 0;
+}
+function adopt(str){
+  state = normalize(JSON.parse(str));
+  syncSelects(); applyZoom(); render(); save();
 }
 function undo(){
   if(!undoStack.length) return;
-  redoStack.push(JSON.stringify(state.marks));
-  state.marks = JSON.parse(undoStack.pop());
-  render(); save();
+  redoStack.push(JSON.stringify(state));
+  adopt(undoStack.pop());
 }
 function redo(){
   if(!redoStack.length) return;
-  undoStack.push(JSON.stringify(state.marks));
-  state.marks = JSON.parse(redoStack.pop());
-  render(); save();
+  undoStack.push(JSON.stringify(state));
+  adopt(redoStack.pop());
 }
 
-/* ---------- marking ---------- */
+/* ---------- deduction ---------- */
+/* Fills everything that follows from the current marks:
+   R1  a ✓ crosses out the rest of its row and column inside the block
+   R2  m-1 ✗ in a line ⇒ the survivor is a ✓
+   R3  ✓(a,b) + ✓(b,c) ⇒ ✓(a,c)          (transitive across blocks)
+   R4  ✓(a,b) + ✗(b,c) ⇒ ✗(a,c)
+   Never overwrites an existing ✓/✗ — conflicts are left for findErrors(). */
+function deduce(){
+  var n = state.n, m = state.m, pass = 0, changed = true;
+  var a,b,c,i,j,k,v;
+  while(changed && pass++ < 16){
+    changed = false;
 
-function cycle(cA,iA,cB,iB,back){
-  var cur = getMark(cA,iA,cB,iB);
-  var next = back ? (cur + 2) % 3 : (cur + 1) % 3;
-  snapshot();
-  setMark(cA,iA,cB,iB,next);
-  if(next === MARK_V && state.auto) autoFill(cA,iA,cB,iB);
-  render(); save();
-}
+    for(a=0;a<n;a++) for(b=a+1;b<n;b++){
+      for(i=0;i<m;i++){                       // rows of the block
+        var vAt=-1, xs=0, gap=-1, gaps=0;
+        for(j=0;j<m;j++){
+          v = getMark(a,i,b,j);
+          if(v===MARK_V) vAt=j; else if(v===MARK_X) xs++; else { gaps++; gap=j; }
+        }
+        if(vAt>=0){
+          for(j=0;j<m;j++){
+            if(j===vAt) continue;
+            v = getMark(a,i,b,j);
+            if(v!==MARK_X && v!==MARK_V){ setMark(a,i,b,j,MARK_X); changed=true; }
+          }
+        } else if(xs === m-1 && gaps === 1){ setMark(a,i,b,gap,MARK_V); changed=true; }
+      }
+      for(j=0;j<m;j++){                       // columns of the block
+        var wAt=-1, xs2=0, gap2=-1, gaps2=0;
+        for(i=0;i<m;i++){
+          v = getMark(a,i,b,j);
+          if(v===MARK_V) wAt=i; else if(v===MARK_X) xs2++; else { gaps2++; gap2=i; }
+        }
+        if(wAt>=0){
+          for(i=0;i<m;i++){
+            if(i===wAt) continue;
+            v = getMark(a,i,b,j);
+            if(v!==MARK_X && v!==MARK_V){ setMark(a,i,b,j,MARK_X); changed=true; }
+          }
+        } else if(xs2 === m-1 && gaps2 === 1){ setMark(a,gap2,b,j,MARK_V); changed=true; }
+      }
+    }
 
-function autoFill(cA,iA,cB,iB){
-  var m = state.m, i;
-  for(i=0;i<m;i++) if(i !== iA && getMark(cA,i,cB,iB) !== MARK_V) setMark(cA,i,cB,iB,MARK_X);
-  for(i=0;i<m;i++) if(i !== iB && getMark(cA,iA,cB,i) !== MARK_V) setMark(cA,iA,cB,i,MARK_X);
+    for(a=0;a<n;a++) for(b=0;b<n;b++){        // both directions: R4 is not symmetric
+      if(a===b) continue;
+      for(i=0;i<m;i++) for(j=0;j<m;j++){
+        if(getMark(a,i,b,j) !== MARK_V) continue;
+        for(c=0;c<n;c++){
+          if(c===a || c===b) continue;
+          for(k=0;k<m;k++){
+            var bc = getMark(b,j,c,k), ac = getMark(a,i,c,k);
+            if(bc === MARK_V){
+              if(ac !== MARK_V && ac !== MARK_X){ setMark(a,i,c,k,MARK_V); changed=true; }
+            } else if(bc === MARK_X){
+              if(ac !== MARK_X && ac !== MARK_V){ setMark(a,i,c,k,MARK_X); changed=true; }
+            }
+          }
+        }
+      }
+    }
+  }
 }
 
 /* ---------- validation ---------- */
-/* Returns a set of keys involved in a contradiction. */
+/* Keys involved in a contradiction: two ✓ in a line, a fully crossed line,
+   or a ✓/✗ pair that disagrees with a ✓ in another block. */
 function findErrors(){
-  var bad = {}, n = state.n, m = state.m;
-  for(var a=0;a<n;a++) for(var b=a+1;b<n;b++){
-    var i,j,ticks,crosses,line;
-    for(i=0;i<m;i++){                       // row of block: item i of cat a
-      ticks=[]; crosses=0; line=[];
+  var bad = {}, n = state.n, m = state.m, a,b,c,i,j,k,v;
+  function flag(list){ list.forEach(function(x){ bad[x] = 1; }); }
+
+  for(a=0;a<n;a++) for(b=a+1;b<n;b++){
+    for(i=0;i<m;i++){
+      var ticks=[], xs=0, line=[];
       for(j=0;j<m;j++){
-        var v = getMark(a,i,b,j); line.push(mkKey(a,i,b,j));
-        if(v===MARK_V) ticks.push(mkKey(a,i,b,j)); else if(v===MARK_X) crosses++;
+        v = getMark(a,i,b,j); line.push(mkKey(a,i,b,j));
+        if(v===MARK_V) ticks.push(mkKey(a,i,b,j)); else if(v===MARK_X) xs++;
       }
-      if(ticks.length>1) ticks.forEach(function(k){bad[k]=1;});
-      if(crosses===m) line.forEach(function(k){bad[k]=1;});
+      if(ticks.length>1) flag(ticks);
+      if(xs===m) flag(line);
     }
-    for(j=0;j<m;j++){                       // column of block: item j of cat b
-      ticks=[]; crosses=0; line=[];
+    for(j=0;j<m;j++){
+      var ticks2=[], xs2=0, line2=[];
       for(i=0;i<m;i++){
-        var v2 = getMark(a,i,b,j); line.push(mkKey(a,i,b,j));
-        if(v2===MARK_V) ticks.push(mkKey(a,i,b,j)); else if(v2===MARK_X) crosses++;
+        v = getMark(a,i,b,j); line2.push(mkKey(a,i,b,j));
+        if(v===MARK_V) ticks2.push(mkKey(a,i,b,j)); else if(v===MARK_X) xs2++;
       }
-      if(ticks.length>1) ticks.forEach(function(k){bad[k]=1;});
-      if(crosses===m) line.forEach(function(k){bad[k]=1;});
+      if(ticks2.length>1) flag(ticks2);
+      if(xs2===m) flag(line2);
+    }
+  }
+
+  for(a=0;a<n;a++) for(b=0;b<n;b++){
+    if(a===b) continue;
+    for(i=0;i<m;i++) for(j=0;j<m;j++){
+      if(getMark(a,i,b,j) !== MARK_V) continue;
+      for(c=0;c<n;c++){
+        if(c===a || c===b) continue;
+        for(k=0;k<m;k++){
+          var bc = getMark(b,j,c,k), ac = getMark(a,i,c,k);
+          if((bc===MARK_V && ac===MARK_X) || (bc===MARK_X && ac===MARK_V)){
+            flag([mkKey(a,i,b,j), mkKey(b,j,c,k), mkKey(a,i,c,k)]);
+          }
+        }
+      }
     }
   }
   return bad;
@@ -457,70 +674,100 @@ function editable(e, onCommit){
   });
 }
 
+/* full structural rebuild — only for size / puzzle / name changes */
 function render(){
   var n = state.n, m = state.m, blocks = n - 1, cells = blocks * m;
-  var errs = findErrors();
 
   gridEl.innerHTML = "";
-  gridEl.style.gridTemplateColumns = "26px var(--lab) repeat(" + cells + ", var(--cs))";
-  gridEl.style.gridTemplateRows    = "26px var(--lab) repeat(" + cells + ", var(--cs))";
+  cellEls = {}; posKey = {}; rowCells = []; colCells = []; rowLabs = []; colLabs = [];
+  hl = null;
+
+  gridEl.style.gridTemplateColumns = "var(--catcol) var(--lab) repeat(" + cells + ", var(--cs))";
+  gridEl.style.gridTemplateRows    = "var(--catcol) var(--lab) repeat(" + cells + ", var(--cs))";
 
   var corner = el("div","corner"); place(corner,1,1,2,2); gridEl.appendChild(corner);
 
   var k, r, i, j;
 
-  // column headers
   for(k=0;k<blocks;k++){
     var cc = colCat(k);
     var ch = el("div","catlab", state.cats[cc].name.toUpperCase());
     place(ch, 1, 3 + k*m, 1, m);
-    editable(ch, (function(ci){ return function(v){ state.cats[ci].name = v; save(); render(); }; })(cc));
+    editable(ch, (function(ci){ return function(v){
+      if(state.cats[ci].name === v) return;
+      snapshot(); state.cats[ci].name = v; save(); render();
+    }; })(cc));
     gridEl.appendChild(ch);
     for(j=0;j<m;j++){
       var cl = el("div","itemlab col", state.cats[cc].items[j]);
       place(cl, 2, 3 + k*m + j);
-      editable(cl, (function(ci,ii){ return function(v){ state.cats[ci].items[ii] = v; save(); renderSolution(); }; })(cc,j));
+      editable(cl, (function(ci,ii){ return function(v){
+        if(state.cats[ci].items[ii] === v) return;
+        snapshot(); state.cats[ci].items[ii] = v; save(); refresh();
+      }; })(cc,j));
+      colLabs[k*m + j] = cl;
       gridEl.appendChild(cl);
     }
   }
 
-  // row headers
   for(r=0;r<blocks;r++){
     var rc = rowCat(r);
     var rh = el("div","catlab vert", state.cats[rc].name.toUpperCase());
     place(rh, 3 + r*m, 1, m, 1);
-    editable(rh, (function(ci){ return function(v){ state.cats[ci].name = v; save(); render(); }; })(rc));
+    editable(rh, (function(ci){ return function(v){
+      if(state.cats[ci].name === v) return;
+      snapshot(); state.cats[ci].name = v; save(); render();
+    }; })(rc));
     gridEl.appendChild(rh);
     for(i=0;i<m;i++){
       var rl = el("div","itemlab row", state.cats[rc].items[i]);
       place(rl, 3 + r*m + i, 2);
-      editable(rl, (function(ci,ii){ return function(v){ state.cats[ci].items[ii] = v; save(); renderSolution(); }; })(rc,i));
+      editable(rl, (function(ci,ii){ return function(v){
+        if(state.cats[ci].items[ii] === v) return;
+        snapshot(); state.cats[ci].items[ii] = v; save(); refresh();
+      }; })(rc,i));
+      rowLabs[r*m + i] = rl;
       gridEl.appendChild(rl);
     }
   }
 
-  // cells
   for(r=0;r<blocks;r++){
     for(k=0;k<blocks;k++){
       if(!blockExists(r,k)) continue;
       var ca = rowCat(r), cb = colCat(k);
       for(i=0;i<m;i++) for(j=0;j<m;j++){
-        var v = getMark(ca,i,cb,j);
-        var cls = "cell" + (v===MARK_X ? " x" : v===MARK_V ? " v" : "");
-        if(i===0) cls += " bt";
-        if(i===m-1) cls += " bb";
-        if(j===0) cls += " bl";
-        if(j===m-1) cls += " br";
-        if(errs[mkKey(ca,i,cb,j)]) cls += " err";
-        var c = el("div", cls, v===MARK_X ? "✗" : v===MARK_V ? "✓" : "");
-        place(c, 3 + r*m + i, 3 + k*m + j);
+        var gr = r*m + i, gc = k*m + j, key = mkKey(ca,i,cb,j);
+        var c = el("div","cell");
+        place(c, 3 + gr, 3 + gc);
+        c.dataset.r = gr; c.dataset.c = gc;
         c.title = state.cats[ca].items[i] + " × " + state.cats[cb].items[j];
         bindCell(c, ca, i, cb, j);
+        cellEls[key] = c;
+        posKey[gr + "_" + gc] = {ca:ca, ia:i, cb:cb, ib:j, key:key};
+        (rowCells[gr] = rowCells[gr] || []).push(c);
+        (colCells[gc] = colCells[gc] || []).push(c);
         gridEl.appendChild(c);
       }
     }
   }
 
+  if(!posKey[cursor.r + "_" + cursor.c]) cursor = {r:0, c:0};
+  refresh();
+}
+
+/* repaint marks / panels without rebuilding the DOM */
+function refresh(){
+  recompute();
+  var errs = findErrors(), key, c, v;
+  for(key in cellEls){
+    c = cellEls[key];
+    v = view[key] || 0;
+    c.textContent = v ? GLYPH[v] : "";
+    c.className = "cell" + (MCLS[v] || "") + (v && !state.marks[key] ? " auto" : "") +
+                  (errs[key] ? " err" : "") + edgeCls(c);
+  }
+  applyHl(hl);
+  applyCursor();
   document.getElementById("btnUndo").disabled = !undoStack.length;
   document.getElementById("btnRedo").disabled = !redoStack.length;
   document.getElementById("btnAuto").className = state.auto ? "on" : "";
@@ -529,15 +776,26 @@ function render(){
   renderClues();
 }
 
+function edgeCls(c){
+  var m = state.m, gr = +c.dataset.r, gc = +c.dataset.c, s = "";
+  if(gr % m === 0) s += " bt";
+  if(gr % m === m-1) s += " bb";
+  if(gc % m === 0) s += " bl";
+  if(gc % m === m-1) s += " br";
+  return s;
+}
+
 function bindCell(c, ca, i, cb, j){
   var timer = null, longPressed = false;
   c.addEventListener("click", function(){
-    if(longPressed){ longPressed = false; return; }
+    cursor = {r:+c.dataset.r, c:+c.dataset.c};
+    if(longPressed){ longPressed = false; applyCursor(); return; }
     cycle(ca,i,cb,j,false);
   });
   c.addEventListener("contextmenu", function(ev){ ev.preventDefault(); cycle(ca,i,cb,j,true); });
   c.addEventListener("touchstart", function(){
     longPressed = false;
+    setHl(+c.dataset.r, +c.dataset.c);
     timer = setTimeout(function(){ longPressed = true; cycle(ca,i,cb,j,true); }, 450);
   }, {passive:true});
   ["touchend","touchmove","touchcancel"].forEach(function(ev){
@@ -545,12 +803,82 @@ function bindCell(c, ca, i, cb, j){
   });
 }
 
+/* ---------- crosshair ---------- */
+
+function setHl(r, c){
+  if(hl && hl.r === r && hl.c === c) return;
+  applyHl(null);
+  hl = {r:r, c:c};
+  applyHl(hl);
+}
+function applyHl(h){
+  function paint(list, on){
+    if(!list) return;
+    list.forEach(function(e){ e.classList.toggle("hl", on); });
+  }
+  if(!h){
+    for(var key in cellEls) cellEls[key].classList.remove("hl");
+    rowLabs.concat(colLabs).forEach(function(e){ if(e) e.classList.remove("hl"); });
+    return;
+  }
+  paint(rowCells[h.r], true); paint(colCells[h.c], true);
+  if(rowLabs[h.r]) rowLabs[h.r].classList.add("hl");
+  if(colLabs[h.c]) colLabs[h.c].classList.add("hl");
+}
+gridEl.addEventListener("mouseover", function(ev){
+  var c = ev.target.closest ? ev.target.closest(".cell") : null;
+  if(c) setHl(+c.dataset.r, +c.dataset.c);
+});
+gridEl.addEventListener("mouseleave", function(){ applyHl(null); hl = null; });
+
+function applyCursor(){
+  for(var key in cellEls) cellEls[key].classList.remove("cur");
+  var p = posKey[cursor.r + "_" + cursor.c];
+  if(p && cellEls[p.key]) cellEls[p.key].classList.add("cur");
+}
+
+/* ---------- marking ---------- */
+
+function cycle(cA,iA,cB,iB,back){
+  var cur = getMark(cA,iA,cB,iB);
+  var idx = CYCLE.indexOf(cur);
+  var next = CYCLE[(idx + (back ? 3 : 1)) % 4];
+  setValue(cA,iA,cB,iB,next);
+}
+function setValue(cA,iA,cB,iB,v){
+  snapshot();
+  setUserMark(cA,iA,cB,iB,v);
+  refresh(); save();
+}
+function setAtCursor(v, cycleIt){
+  var p = posKey[cursor.r + "_" + cursor.c];
+  if(!p) return;
+  if(cycleIt) cycle(p.ca,p.ia,p.cb,p.ib,false);
+  else setValue(p.ca,p.ia,p.cb,p.ib,v);
+}
+function moveCursor(dr, dc){
+  var m = state.m, span = (state.n - 1) * m, r = cursor.r, c = cursor.c;
+  for(var step=0; step<span; step++){
+    r += dr; c += dc;
+    if(r < 0 || c < 0 || r >= span || c >= span) return;
+    if(posKey[r + "_" + c]){
+      cursor = {r:r, c:c};
+      applyCursor(); setHl(r, c);
+      var e = cellEls[posKey[r + "_" + c].key];
+      if(e && e.scrollIntoView) e.scrollIntoView({block:"nearest", inline:"nearest"});
+      return;
+    }
+  }
+}
+
+/* ---------- panels ---------- */
+
 function renderStatus(errs){
   var s = document.getElementById("status");
   var nErr = Object.keys(errs).length;
   if(nErr){ s.textContent = "Contradiction"; s.className = "bad"; return; }
   var n = state.n, m = state.m, need = (n*(n-1)/2) * m, have = 0;
-  for(var k in state.marks) if(state.marks[k] === MARK_V) have++;
+  for(var k in view) if(view[k] === MARK_V) have++;
   if(have === need){ s.textContent = "Solved"; s.className = "good"; }
   else { s.textContent = have + " / " + need + " matched"; s.className = ""; }
 }
@@ -578,11 +906,14 @@ function renderSolution(){
   }
 }
 
-/* ---------- clues ---------- */
-
 function renderClues(){
   var ul = document.getElementById("clues");
   ul.innerHTML = "";
+  var open = 0;
+  state.clues.forEach(function(c){ if(!c.done) open++; });
+  document.getElementById("handleTxt").textContent =
+    "Clues" + (state.clues.length ? " — " + open + " left" : "") ;
+
   if(!state.clues.length){
     var li0 = el("li"); li0.appendChild(el("span","txt empty","No clues yet — hit + Add."));
     ul.appendChild(li0); return;
@@ -591,16 +922,41 @@ function renderClues(){
     var li = el("li", cl.done ? "done" : "");
     var bt = el("button","mini noprint", cl.done ? "↺" : "✓");
     bt.title = cl.done ? "Mark unused" : "Mark used";
-    bt.addEventListener("click", function(){ state.clues[idx].done = !state.clues[idx].done; save(); renderClues(); });
+    bt.addEventListener("click", function(){
+      snapshot(); state.clues[idx].done = !state.clues[idx].done; save(); renderClues();
+      document.getElementById("btnUndo").disabled = !undoStack.length;
+    });
     var tx = el("span","txt", cl.text);
-    editable(tx, function(v){ state.clues[idx].text = v; save(); });
+    editable(tx, function(v){
+      if(state.clues[idx] && state.clues[idx].text === v) return;
+      snapshot(); state.clues[idx].text = v; save();
+    });
     var bd = el("button","mini noprint","✕");
     bd.title = "Delete clue";
-    bd.addEventListener("click", function(){ state.clues.splice(idx,1); save(); renderClues(); });
+    bd.addEventListener("click", function(){
+      snapshot(); state.clues.splice(idx,1); save(); renderClues();
+      showToast("Clue deleted", "Undo", function(){ undo(); hideToast(); });
+    });
     li.appendChild(bt); li.appendChild(tx); li.appendChild(bd);
     ul.appendChild(li);
   });
 }
+
+/* ---------- toast ---------- */
+
+var toastEl = document.getElementById("toast");
+
+function showToast(msg, actionLabel, onAction){
+  document.getElementById("toastMsg").textContent = msg;
+  var act = document.getElementById("toastAct");
+  var fresh = act.cloneNode(false);            // drop any previous handler
+  fresh.textContent = actionLabel;
+  fresh.addEventListener("click", onAction);
+  act.parentNode.replaceChild(fresh, act);
+  toastEl.hidden = false;
+}
+function hideToast(){ toastEl.hidden = true; }
+document.getElementById("toastDismiss").addEventListener("click", hideToast);
 
 /* ---------- bulk name editor ---------- */
 
@@ -623,13 +979,12 @@ function openNames(){
     d.appendChild(nm); d.appendChild(ta);
     wrap.appendChild(d);
   }
+  closeMenu();
   namesModal.hidden = false;
   var first = wrap.querySelector("input");
   if(first){ first.focus(); first.select(); }
 }
-
 function closeNames(){ namesModal.hidden = true; }
-
 function tidy(s){ return s.replace(/\s+/g," ").trim(); }
 
 function applyNames(){
@@ -643,11 +998,11 @@ function applyNames(){
   lists.forEach(function(l){ if(l.length > maxItems) maxItems = l.length; });
   var m = Math.max(3, Math.min(6, maxItems || state.m));
 
+  snapshot();
   if(m !== state.m){
-    resize(state.n, m);                     // drops out-of-range marks, rebuilds cats
+    resize(state.n, m, true);                 // drops out-of-range marks; undoable
     fillSelect("nItems", 3, 6, m);
   }
-
   for(var c=0;c<state.n;c++){
     if(names[c]) state.cats[c].name = names[c];
     for(var i=0;i<m;i++){
@@ -655,7 +1010,6 @@ function applyNames(){
     }
     state.cats[c].items.length = m;
   }
-
   closeNames();
   render(); save();
 }
@@ -665,6 +1019,81 @@ document.getElementById("btnNamesApply").addEventListener("click", applyNames);
 document.getElementById("btnNamesCancel").addEventListener("click", closeNames);
 document.getElementById("btnNamesClose").addEventListener("click", closeNames);
 namesModal.addEventListener("click", function(ev){ if(ev.target === namesModal) closeNames(); });
+
+/* ---------- puzzle library UI ---------- */
+
+var puzzModal = document.getElementById("puzzModal");
+
+function openPuzzles(){ closeMenu(); renderPuzzles(); puzzModal.hidden = false; }
+function closePuzzles(){ puzzModal.hidden = true; }
+
+function renderPuzzles(){
+  var wrap = document.getElementById("puzzList");
+  if(!wrap) return;
+  wrap.innerHTML = "";
+  lib.puzzles.forEach(function(p){
+    var row = el("div", "pz" + (p.id === lib.active ? " active" : ""));
+    var nm = document.createElement("input");
+    nm.type = "text"; nm.value = p.name;
+    nm.setAttribute("aria-label","Puzzle name");
+    nm.addEventListener("change", function(){
+      p.name = tidy(nm.value) || "Untitled";
+      nm.value = p.name; saveLib(); save();
+    });
+    var meta = el("span","meta", p.state.n + "×" + p.state.m);
+    var open = el("button",null, p.id === lib.active ? "Open ✓" : "Open");
+    open.disabled = p.id === lib.active;
+    open.addEventListener("click", function(){ openPuzzle(p.id); });
+    var dup = el("button",null,"Copy");
+    dup.addEventListener("click", function(){
+      var copy = mkPuzzle(p.name + " (copy)", JSON.parse(JSON.stringify(p.state)));
+      lib.puzzles.push(copy); saveLib(); openPuzzle(copy.id);
+    });
+    var del = el("button",null,"Delete");
+    del.disabled = lib.puzzles.length < 2;
+    del.addEventListener("click", function(){
+      var idx = lib.puzzles.indexOf(p);
+      var removed = lib.puzzles.splice(idx,1)[0];
+      if(lib.active === removed.id){
+        lib.active = lib.puzzles[Math.min(idx, lib.puzzles.length-1)].id;
+        state = activePuzzle().state;
+        undoStack.length = 0; redoStack.length = 0;
+        syncSelects(); applyZoom(); render();
+      }
+      saveLib(); save(); renderPuzzles();
+      showToast("Puzzle deleted", "Undo", function(){
+        lib.puzzles.splice(idx, 0, removed);
+        saveLib(); renderPuzzles(); hideToast();
+      });
+    });
+    row.appendChild(nm); row.appendChild(meta);
+    row.appendChild(open); row.appendChild(dup); row.appendChild(del);
+    wrap.appendChild(row);
+  });
+}
+
+document.getElementById("btnPuzzles").addEventListener("click", openPuzzles);
+document.getElementById("btnPuzzClose").addEventListener("click", closePuzzles);
+document.getElementById("btnPuzzDone").addEventListener("click", closePuzzles);
+document.getElementById("btnPuzzNew").addEventListener("click", function(){
+  var p = mkPuzzle("Puzzle " + (lib.puzzles.length + 1), freshState(state.n, state.m));
+  lib.puzzles.push(p); saveLib(); openPuzzle(p.id);
+});
+puzzModal.addEventListener("click", function(ev){ if(ev.target === puzzModal) closePuzzles(); });
+
+/* ---------- overflow menu ---------- */
+
+var moreMenu = document.getElementById("moreMenu");
+function openMenu(){ moreMenu.hidden = false; }
+function closeMenu(){ moreMenu.hidden = true; }
+document.getElementById("btnMore").addEventListener("click", function(ev){
+  ev.stopPropagation();
+  moreMenu.hidden ? openMenu() : closeMenu();
+});
+document.addEventListener("click", function(ev){
+  if(moreMenu.hidden) return;
+  if(!moreMenu.contains(ev.target)) closeMenu();
+});
 
 /* ---------- controls ---------- */
 
@@ -678,8 +1107,12 @@ function fillSelect(id, from, to, val){
     s.appendChild(o);
   }
 }
+function syncSelects(){
+  fillSelect("nCats", 2, 5, state.n);
+  fillSelect("nItems", 3, 6, state.m);
+}
 
-function resize(n, m){
+function resize(n, m, quiet){
   var kept = {};
   for(var k in state.marks){
     var mt = /^(\d+)\.(\d+)-(\d+)\.(\d+)$/.exec(k);
@@ -688,18 +1121,18 @@ function resize(n, m){
   }
   state.cats = makeCats(n, m, state.cats);
   state.n = n; state.m = m; state.marks = kept;
-  undoStack.length = 0; redoStack.length = 0;
-  render(); save();
+  if(!quiet){ render(); save(); }
 }
 
 document.getElementById("nCats").addEventListener("change", function(){
-  resize(+this.value, state.m);
+  snapshot(); resize(+this.value, state.m);
 });
 document.getElementById("nItems").addEventListener("change", function(){
-  resize(state.n, +this.value);
+  snapshot(); resize(state.n, +this.value);
 });
 document.getElementById("btnAuto").addEventListener("click", function(){
-  state.auto = !state.auto; save(); render();
+  state.auto = !state.auto;
+  save(); refresh();
 });
 document.getElementById("btnUndo").addEventListener("click", undo);
 document.getElementById("btnRedo").addEventListener("click", redo);
@@ -714,17 +1147,19 @@ function zoom(d){
 }
 document.getElementById("btnZoomOut").addEventListener("click", function(){ zoom(-4); });
 document.getElementById("btnZoomIn").addEventListener("click", function(){ zoom(4); });
+
 document.getElementById("btnClear").addEventListener("click", function(){
-  if(!confirm("Clear all ✓ / ✗ marks? Names and clues are kept.")) return;
-  snapshot(); state.marks = {}; render(); save();
+  closeMenu(); snapshot(); state.marks = {}; refresh(); save();
+  showToast("Marks cleared", "Undo", function(){ undo(); hideToast(); });
 });
 document.getElementById("btnReset").addEventListener("click", function(){
-  if(!confirm("Reset everything to defaults? Names, marks and clues are lost.")) return;
+  closeMenu(); snapshot();
   state = freshState(state.n, state.m);
-  undoStack.length = 0; redoStack.length = 0;
-  render(); save();
+  syncSelects(); applyZoom(); render(); save();
+  showToast("Puzzle reset", "Undo", function(){ undo(); hideToast(); });
 });
 document.getElementById("btnAddClue").addEventListener("click", function(){
+  snapshot();
   state.clues.push({text:"New clue…", done:false});
   save(); renderClues();
   var spans = document.querySelectorAll("#clues .txt");
@@ -732,14 +1167,19 @@ document.getElementById("btnAddClue").addEventListener("click", function(){
   if(last){ last.focus(); document.execCommand && document.execCommand("selectAll", false, null); }
 });
 document.getElementById("btnExport").addEventListener("click", function(){
-  var blob = new Blob([JSON.stringify(state,null,2)], {type:"application/json"});
+  closeMenu();
+  var p = activePuzzle();
+  var payload = JSON.parse(JSON.stringify(state));
+  payload.name = p.name;
+  var blob = new Blob([JSON.stringify(payload,null,2)], {type:"application/json"});
   var a = document.createElement("a");
   a.href = URL.createObjectURL(blob);
-  a.download = "murdle-chart.json";
+  a.download = (p.name || "murdle-chart").replace(/[^\w.-]+/g,"-").toLowerCase() + ".json";
   a.click();
   setTimeout(function(){ URL.revokeObjectURL(a.href); }, 1000);
 });
 document.getElementById("btnImport").addEventListener("click", function(){
+  closeMenu();
   document.getElementById("fileIn").click();
 });
 document.getElementById("fileIn").addEventListener("change", function(){
@@ -749,30 +1189,74 @@ document.getElementById("fileIn").addEventListener("change", function(){
   fr.onload = function(){
     try{
       var s = JSON.parse(fr.result);
-      if(!s.cats || !s.cats.length) throw 0;
-      s.marks = s.marks || {}; s.clues = s.clues || [];
-      s.n = s.cats.length; s.m = s.cats[0].items.length;
-      if(typeof s.auto !== "boolean") s.auto = true;
-      state = s;
-      undoStack.length = 0; redoStack.length = 0;
-      if(typeof s.cs !== "number") s.cs = defaultCellSize();
-      fillSelect("nCats", 2, 5, state.n);
-      fillSelect("nItems", 3, 6, state.m);
-      applyZoom(); render(); save();
-    }catch(e){ alert("That file is not a valid Murdle Chart export."); }
+      var name = s.name || f.name.replace(/\.json$/i,"") || "Imported";
+      s = normalize(s);
+      if(!s) throw 0;
+      var p = mkPuzzle(name, s);              // imports land beside the current puzzle
+      lib.puzzles.push(p); saveLib(); openPuzzle(p.id);
+      showToast("Imported as a new puzzle", "Puzzles…", function(){ hideToast(); openPuzzles(); });
+    }catch(e){ showToast("Not a valid Murdle Chart export", "OK", hideToast); }
   };
   fr.readAsText(f);
   this.value = "";
 });
-document.getElementById("btnPrint").addEventListener("click", function(){ window.print(); });
+document.getElementById("btnPrint").addEventListener("click", function(){ closeMenu(); window.print(); });
+
+/* theme */
+function applyTheme(){
+  var t = (lib.prefs && lib.prefs.theme) || "auto";
+  if(t === "auto") document.documentElement.removeAttribute("data-theme");
+  else document.documentElement.setAttribute("data-theme", t);
+  document.getElementById("btnTheme").textContent = "Theme: " + t.charAt(0).toUpperCase() + t.slice(1);
+}
+document.getElementById("btnTheme").addEventListener("click", function(){
+  var order = ["auto","light","dark"];
+  var t = (lib.prefs.theme || "auto");
+  lib.prefs.theme = order[(order.indexOf(t) + 1) % 3];
+  applyTheme(); saveLib();
+});
+
+/* mobile clue drawer */
+var sideEl = document.getElementById("side");
+document.getElementById("sideHandle").addEventListener("click", function(){
+  sideEl.classList.toggle("open");
+  document.getElementById("handleArrow").textContent = sideEl.classList.contains("open") ? "▼" : "▲";
+});
+
+/* ---------- keyboard ---------- */
+
+function anyOverlayOpen(){
+  return !namesModal.hidden || !puzzModal.hidden || !moreMenu.hidden;
+}
+function closeOverlays(){
+  if(!namesModal.hidden){ closeNames(); return true; }
+  if(!puzzModal.hidden){ closePuzzles(); return true; }
+  if(!moreMenu.hidden){ closeMenu(); return true; }
+  return false;
+}
 
 document.addEventListener("keydown", function(ev){
-  if(ev.key === "Escape" && !namesModal.hidden){ ev.preventDefault(); closeNames(); return; }
-  var tag = ev.target.tagName;
-  if(ev.target.isContentEditable || tag === "INPUT" || tag === "TEXTAREA") return;
+  if(ev.key === "Escape" && anyOverlayOpen()){ ev.preventDefault(); closeOverlays(); return; }
+  var t = ev.target, tag = t.tagName;
+  if(t.isContentEditable || tag === "INPUT" || tag === "TEXTAREA" || tag === "SELECT") return;
+
   var mod = ev.metaKey || ev.ctrlKey;
-  if(mod && ev.key.toLowerCase() === "z"){ ev.preventDefault(); ev.shiftKey ? redo() : undo(); }
-  if(mod && ev.key.toLowerCase() === "y"){ ev.preventDefault(); redo(); }
+  if(mod && ev.key.toLowerCase() === "z"){ ev.preventDefault(); ev.shiftKey ? redo() : undo(); return; }
+  if(mod && ev.key.toLowerCase() === "y"){ ev.preventDefault(); redo(); return; }
+  if(mod || ev.altKey) return;
+
+  var k = ev.key;
+  if(k === "ArrowLeft" ){ ev.preventDefault(); moveCursor(0,-1); return; }
+  if(k === "ArrowRight"){ ev.preventDefault(); moveCursor(0, 1); return; }
+  if(k === "ArrowUp"   ){ ev.preventDefault(); moveCursor(-1,0); return; }
+  if(k === "ArrowDown" ){ ev.preventDefault(); moveCursor( 1,0); return; }
+
+  var lower = k.toLowerCase();
+  if(lower === "x"){ ev.preventDefault(); setAtCursor(MARK_X); return; }
+  if(lower === "v"){ ev.preventDefault(); setAtCursor(MARK_V); return; }
+  if(lower === "m" || k === "?"){ ev.preventDefault(); setAtCursor(MARK_Q); return; }
+  if(k === "Backspace" || k === "Delete" || k === "0"){ ev.preventDefault(); setAtCursor(0); return; }
+  if(k === " " || k === "Enter"){ ev.preventDefault(); setAtCursor(null, true); }
 });
 
 /* ---------- zoom lock (iOS) ---------- */
@@ -781,22 +1265,6 @@ document.addEventListener("keydown", function(ev){
 ["gesturestart","gesturechange","gestureend"].forEach(function(ev){
   document.addEventListener(ev, function(e){ e.preventDefault(); }, {passive:false});
 });
-
-/* ---------- toast ---------- */
-
-var toastEl = document.getElementById("toast");
-
-function showToast(msg, actionLabel, onAction){
-  document.getElementById("toastMsg").textContent = msg;
-  var act = document.getElementById("toastAct");
-  var fresh = act.cloneNode(false);            // drop any previous handler
-  fresh.textContent = actionLabel;
-  fresh.addEventListener("click", onAction);
-  act.parentNode.replaceChild(fresh, act);
-  toastEl.hidden = false;
-}
-function hideToast(){ toastEl.hidden = true; }
-document.getElementById("toastDismiss").addEventListener("click", hideToast);
 
 /* ---------- boot ---------- */
 
@@ -841,11 +1309,13 @@ if("serviceWorker" in navigator && location.protocol.indexOf("http") === 0){
   });
 }
 
-state = load() || freshState(3, 4);
-fillSelect("nCats", 2, 5, state.n);
-fillSelect("nItems", 3, 6, state.m);
+lib = loadLib();
+state = activePuzzle().state;
+applyTheme();
+syncSelects();
 applyZoom();
 render();
+save();
 
 })();
 </script>

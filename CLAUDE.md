@@ -11,8 +11,14 @@ Single-file HTML5 logic-grid (Murdle-style) deduction chart. Offline, no build s
 ## Core model
 - N categories (default 3: Suspects / Weapons / Locations), each with M items (default 4).
 - Grid = staircase of pairwise blocks: for categories `c0..c(N-1)`, block `(i,j)` exists for `i<j`, laid out Murdle-style (row-cats = c1..c(N-1) reversed, col-cats = c0..c(N-2)).
-- Cell state cycles on click: `empty → ✗ → ✓ → empty`. Right-click / long-press = reverse cycle.
+- Cell state cycles on click: `empty → ✗ → ✓ → ? → empty`. Right-click / long-press = reverse cycle.
+  `?` is a pencil mark: ignored by "solved", counted as unknown by deduction.
 - Cell = `{catA, itemA, catB, itemB}` keyed pair; state stored in a Map, symmetric.
+- **Two mark layers.** `state.marks` holds only what the player entered and is the only thing
+  persisted/undone. `view` = `state.marks` + everything `deduce()` derives, rebuilt from scratch
+  at the top of every `refresh()`. Derived cells render with `.auto` (dimmed) and are never
+  written back, so erasing a mark can't leave a stale deduction behind and a derived ✗ can never
+  block a later ✓. Derived writes refuse to overwrite a player mark.
 
 ## Features
 ### v1 (must)
@@ -24,19 +30,44 @@ Single-file HTML5 logic-grid (Murdle-style) deduction chart. Offline, no build s
    Esc / backdrop click / Cancel closes without applying.
 2. Configurable N categories × M items (2–5 cats, 3–6 items).
 3. Click-cycle marking with clear ✓/✗ glyphs.
-4. Auto-deduce (optional toggle): when a ✓ is set, fill the rest of that row/col in the block with ✗.
-5. Reset / Clear grid.
-6. Save/load to localStorage; autosave.
-7. Responsive layout; rotated column headers.
+4. **Deduce** (optional toggle, ON by default) — full propagation to a fixpoint (≤16 passes):
+   R1 a ✓ crosses out the rest of its block row/column; R2 `m-1` ✗ in a line ⇒ the survivor is ✓;
+   R3 ✓(a,b) + ✓(b,c) ⇒ ✓(a,c); R4 ✓(a,b) + ✗(b,c) ⇒ ✗(a,c). Runs over both category orders,
+   since R4 isn't symmetric.
+5. Reset / Clear grid — no `confirm()`; both snapshot first and offer **Undo** in the toast.
+6. Save/load to localStorage; autosave. **Puzzle library**: `murdle-lib-v1` =
+   `{active, puzzles:[{id,name,updated,state}], prefs:{theme}}`; the old single-slot
+   `murdle-chart-v1` save is migrated on first boot. New / Copy / Rename / Delete (delete is
+   undoable via toast) live in the Puzzles modal; Import lands as a *new* puzzle, never an
+   overwrite.
+7. Responsive layout; rotated column headers; row labels + row category bar are
+   `position:sticky` so they survive horizontal scroll on 4–5 category grids.
 
-### v2 (nice)
-8. Undo/redo stack.
-9. Notes panel for clue text.
-10. Contradiction highlight (row/col with two ✓, or all ✗).
-11. Solution summary table (derived from ✓s).
-12. Print stylesheet.
-13. Export/import puzzle as JSON.
-14. Dark mode.
+### v2 (done)
+8. Undo/redo of the **whole state** — marks, names, clues, category/item count — 80 deep,
+   `⌘/Ctrl+Z` and `⇧⌘Z` / `Ctrl+Y`. `resize()` no longer clears the stack.
+9. Clue list (add / edit / strike-when-used / delete, delete is undoable).
+10. Contradiction highlight: two ✓ in a line, a fully crossed line, **and** cross-block conflicts
+    (✓(a,b)+✓(b,c)+✗(a,c) and the mirror).
+11. Solution summary table (derived from the merged view, so deductions show up in it).
+12. Print stylesheet: landscape `@page`, forced light vars, smaller cells, sidebar printed below
+    the grid.
+13. Export/import puzzle as JSON (export carries the puzzle name; import creates a new puzzle).
+14. Dark mode: `prefers-color-scheme` by default, `Theme: Auto → Light → Dark` button pins it in
+    `lib.prefs.theme`; all colors are CSS vars (`--ink/--paper/--edge/--hdrbg/--hl/...`).
+
+### v3 (done)
+15. Crosshair: hovering or cursoring a cell tints its whole grid row and column plus the two item
+    labels it joins.
+16. Keyboard: arrows move a cursor (skipping empty blocks), `x` / `v` / `?`(or `m`) mark it,
+    `Backspace`/`Delete`/`0` clear, `Space`/`Enter` cycle.
+17. Incremental repaint: `render()` rebuilds the DOM only for structural changes; marking calls
+    `refresh()`, which repaints existing cells from caches (`cellEls`, `posKey`, `rowCells`,
+    `colCells`, `rowLabs`, `colLabs`).
+18. Toolbar reduced to Deduce / Undo / Redo / − / + / Names / ⋯ More; sizes, Puzzles, Theme,
+    Clear, Reset, Export, Import, Print live in the ⋯ menu.
+19. Mobile: clues + solution become a bottom drawer (46px peek, tap to open, shows how many clues
+    are left).
 
 ## Layout sketch (3×4)
 ```
@@ -79,5 +110,6 @@ LOCATIONS l1 [] [] [] []
 ## Decisions
 - Dimensions: configurable, 2–5 categories × 3–6 items (default 3×4).
 - Style: authentic Murdle — heavy black block borders, white cells, bold condensed caps.
-- Auto-deduce: ON by default, toggleable. Row/col ✗ fill within the block only (no cross-block transitive solving).
+- Deduce: ON by default, toggleable, full cross-block propagation; results live only in `view`.
 - Clues: editable clue list sidebar (add / edit / strike-when-used / delete), saved with the grid.
+- No `confirm()` anywhere — destructive actions snapshot and offer Undo in the toast.

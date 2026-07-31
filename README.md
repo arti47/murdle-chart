@@ -6,10 +6,15 @@ A Murdle-style logic-grid deduction chart. One HTML file, no dependencies, works
 
 ## Use
 
-- Click a cell: blank → **✗** → **✓** → blank. Right-click (desktop) or long-press (touch) cycles backwards.
-- Click any category or item name to rename it.
-- `Auto ✗` fills the rest of the row and column with ✗ whenever you place a ✓.
-- Everything autosaves to the browser. `Export` / `Import` moves a puzzle as JSON.
+- Click a cell: blank → **✗** → **✓** → **?** → blank. Right-click (desktop) or long-press (touch) cycles backwards.
+- Keyboard: arrow keys move the cursor, `x` / `v` / `?` mark it, `Backspace` clears, `Space` cycles, `⌘/Ctrl+Z` undoes.
+- Hovering a cell highlights its row, its column and the two names it joins.
+- `Deduce` (on by default) fills in everything that follows from your marks — inside a block and
+  across blocks — and draws those marks dimmed. Only your own marks are saved, so erasing one
+  always erases what it implied.
+- Click any category or item name to rename it, or use `Names` to paste a whole puzzle at once.
+- `⋯ More` holds grid size, the puzzle library, theme, clear/reset, export/import and print.
+- Everything autosaves to the browser, one save per puzzle. `Export` / `Import` moves a puzzle as JSON.
 
 ## Add to your iPhone / iPad home screen
 
